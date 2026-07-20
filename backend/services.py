@@ -1,4 +1,4 @@
-from sqlalchemy import func
+from sqlalchemy import func, desc, asc
 from sqlalchemy.orm import Session
 from datetime import date, datetime
 from typing import Optional
@@ -147,16 +147,21 @@ def calcular_indicadores(
     separador_id: Optional[int] = None,
     conferente_id: Optional[int] = None,
 ) -> IndicadoresRead:
-    query = db.query(Operacao)
-    query = _aplicar_filtros_data(query, dia, mes, periodo_inicio, periodo_fim)
-    if separador_id:
-        query = query.filter(Operacao.separador_id == separador_id)
-    if conferente_id:
-        query = query.filter(Operacao.conferente_id == conferente_id)
+    # Helper to build filtered query
+    def build_filtered_query():
+        q = db.query(Operacao)
+        q = _aplicar_filtros_data(q, dia, mes, periodo_inicio, periodo_fim)
+        if separador_id:
+            q = q.filter(Operacao.separador_id == separador_id)
+        if conferente_id:
+            q = q.filter(Operacao.conferente_id == conferente_id)
+        return q
 
-    total_pedidos = query.count()
+    # Get count
+    total_pedidos = build_filtered_query().count()
 
-    result = query.with_entities(
+    # Get sums
+    result = build_filtered_query().with_entities(
         func.coalesce(func.sum(Operacao.qtd_itens_separados), 0),
         func.coalesce(func.sum(Operacao.qtd_itens_conferidos), 0),
     ).first()
@@ -164,13 +169,14 @@ def calcular_indicadores(
     total_itens_separados = int(result[0] or 0) if result else 0
     total_itens_conferidos = int(result[1] or 0) if result else 0
 
+    # Get count of active colaboradores (global, not filtered by date/operacoes)
     colaboradores_ativos = db.query(func.count(Colaborador.id)).filter(Colaborador.ativo == True).scalar() or 0
 
     return IndicadoresRead(
         total_pedidos=total_pedidos,
         total_itens_separados=total_itens_separados,
         total_itens_conferidos=total_itens_conferidos,
-        colaboradores_ativos=colaboradores_ativos,
+        colaboradores_ativos=int(colaboradores_ativos),
     )
 
 
@@ -195,7 +201,7 @@ def calcular_ranking_separadores(
     if conferente_id:
         query = query.filter(Operacao.conferente_id == conferente_id)
 
-    query = query.group_by(Colaborador.id, Colaborador.nome).order_by(func.desc("qtd_itens"))
+    query = query.group_by(Colaborador.id, Colaborador.nome).order_by(desc(func.sum(Operacao.qtd_itens_separados)))
 
     if limit:
         query = query.limit(limit)
@@ -233,7 +239,7 @@ def calcular_ranking_conferentes(
     if separador_id:
         query = query.filter(Operacao.separador_id == separador_id)
 
-    query = query.group_by(Colaborador.id, Colaborador.nome).order_by(func.desc("qtd_itens"))
+    query = query.group_by(Colaborador.id, Colaborador.nome).order_by(desc(func.sum(Operacao.qtd_itens_conferidos)))
 
     if limit:
         query = query.limit(limit)
