@@ -357,7 +357,26 @@
         <!-- OPERAÇÕES -->
         <div id="operacoes" class="tab-content">
             <div class="card">
-                <h2>➕ Registrar Operação</h2>
+                <h2>📤 Importar Excel</h2>
+                <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+                    Faça upload de um arquivo .xlsx com as colunas: DATA, SEPARADOR, QTD ITENS(separador), PEDIDÉ, CONFERENTE, QTD ITENS(conferente)
+                </p>
+                <div id="msg-import" class="message"></div>
+                <form onsubmit="importarExcel(event)">
+                    <div class="form-group">
+                        <label>Selecione o arquivo Excel</label>
+                        <input type="file" id="arquivo-excel" accept=".xlsx" required>
+                    </div>
+                    <button type="submit">Importar Dados</button>
+                </form>
+                <div id="resultado-import" style="margin-top: 15px; display: none; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+                    <p><strong>Resultado da importação:</strong></p>
+                    <p id="resultado-texto"></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>➕ Registrar Operação (Manual)</h2>
                 <div id="msg-op" class="message"></div>
                 <form onsubmit="criarOperacao(event)">
                     <div class="form-row">
@@ -449,6 +468,53 @@
                 } catch (err) {
                     alert('✗ Erro na conexão');
                 }
+            }
+        }
+
+        async function importarExcel(e) {
+            e.preventDefault();
+            const arquivo = document.getElementById('arquivo-excel').files[0];
+            if (!arquivo) {
+                showMessage('msg-import', '✗ Selecione um arquivo', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', arquivo);
+
+            try {
+                const res = await fetch(`${API_URL}/admin/import-excel`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (data.status === 'ok') {
+                    showMessage('msg-import', `✓ ${data.importados} operação(ões) importada(s)!`, 'success');
+
+                    // Mostrar resultado detalhado
+                    const resultDiv = document.getElementById('resultado-import');
+                    let texto = `<span style="color: green;">✓ ${data.importados} operação(ões) importada(s) com sucesso</span>`;
+                    if (data.total_erros > 0) {
+                        texto += `<br><span style="color: red;">✗ ${data.total_erros} erro(s):</span><br>`;
+                        data.erros.forEach(err => {
+                            texto += `  • ${err}<br>`;
+                        });
+                    }
+                    document.getElementById('resultado-texto').innerHTML = texto;
+                    resultDiv.style.display = 'block';
+
+                    e.target.reset();
+                    setTimeout(() => {
+                        loadColaboradores();
+                        loadOperacoes();
+                        loadDashboard();
+                    }, 1000);
+                } else {
+                    showMessage('msg-import', `✗ ${data.detail || 'Erro ao importar'}`, 'error');
+                }
+            } catch (err) {
+                showMessage('msg-import', '✗ Erro na conexão', 'error');
             }
         }
 

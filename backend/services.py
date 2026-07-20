@@ -284,6 +284,75 @@ def limpar_banco_dados(db: Session) -> None:
     db.commit()
 
 
+def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
+    """
+    Importa operações de uma lista de dicts (vindo de Excel)
+    Espera: [{"DATA": date, "SEPARADOR": str, "QTD ITENS(separador)": int,
+              "PEDIDÉ": str, "CONFERENTE": str, "QTD ITENS(conferente)": int}, ...]
+    """
+    importados = 0
+    erros = []
+
+    for idx, row in enumerate(dados, start=2):  # start=2 pois linha 1 é header
+        try:
+            # Normalizar nomes de colunas
+            data = row.get("DATA")
+            pedido = row.get("PEDIDÉ") or row.get("PEDIDO")
+            separador_nome = row.get("SEPARADOR", "").strip()
+            qtd_sep = row.get("QTD ITENS(separador)")
+            conferente_nome = row.get("CONFERENTE", "").strip()
+            qtd_conf = row.get("QTD ITENS(conferente)")
+
+            # Validações
+            if not data or not pedido or not separador_nome or not conferente_nome:
+                erros.append(f"Linha {idx}: Dados incompletos")
+                continue
+
+            if not qtd_sep or not qtd_conf:
+                erros.append(f"Linha {idx}: Quantidades inválidas")
+                continue
+
+            # Buscar/criar colaboradores
+            separador = db.query(Colaborador).filter(
+                Colaborador.nome.ilike(separador_nome)
+            ).first()
+            if not separador:
+                separador = Colaborador(nome=separador_nome, ativo=True)
+                db.add(separador)
+                db.flush()
+
+            conferente = db.query(Colaborador).filter(
+                Colaborador.nome.ilike(conferente_nome)
+            ).first()
+            if not conferente:
+                conferente = Colaborador(nome=conferente_nome, ativo=True)
+                db.add(conferente)
+                db.flush()
+
+            # Criar operação
+            operacao = Operacao(
+                data=data,
+                pedido=str(pedido).strip(),
+                separador_id=separador.id,
+                qtd_itens_separados=int(qtd_sep),
+                conferente_id=conferente.id,
+                qtd_itens_conferidos=int(qtd_conf),
+            )
+            db.add(operacao)
+            importados += 1
+
+        except Exception as e:
+            erros.append(f"Linha {idx}: {str(e)}")
+
+    db.commit()
+
+    return {
+        "importados": importados,
+        "erros": erros,
+        "total_erros": len(erros),
+    }
+
+
 def montar_dashboard(
     db: Session,
     dia: Optional[date] = None,
