@@ -295,9 +295,9 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
 
     for idx, row in enumerate(dados, start=2):  # start=2 pois linha 1 é header
         try:
-            # Normalizar nomes de colunas
+            # Normalizar nomes de colunas (aceita PEDIDO ou PEDIDÉ)
             data = row.get("DATA")
-            pedido = row.get("PEDIDÉ") or row.get("PEDIDO")
+            pedido = row.get("PEDIDO") or row.get("PEDIDÉ")
             separador_nome = row.get("SEPARADOR", "").strip()
             qtd_sep = row.get("QTD ITENS(separador)")
             conferente_nome = row.get("CONFERENTE", "").strip()
