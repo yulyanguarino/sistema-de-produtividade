@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
-from routes import colaboradores, operacoes, dashboard
+from routes import colaboradores, operacoes, dashboard, admin
 
 app = FastAPI(
     title="Sistema de Produtividade Operacional",
@@ -26,6 +26,7 @@ def on_startup():
 app.include_router(colaboradores.router)
 app.include_router(operacoes.router)
 app.include_router(dashboard.router)
+app.include_router(admin.router)
 
 
 @app.get("/")

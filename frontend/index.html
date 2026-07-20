@@ -278,6 +278,7 @@
             <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
             <button class="tab-btn" onclick="switchTab('colaboradores')">Colaboradores</button>
             <button class="tab-btn" onclick="switchTab('operacoes')">Operações</button>
+            <button class="tab-btn" onclick="resetDatabase()" style="background: #dc3545; margin-left: auto;">🗑️ Limpar Tudo</button>
         </div>
 
         <!-- DASHBOARD -->
@@ -428,6 +429,27 @@
             if (tabName === 'dashboard') loadDashboard();
             if (tabName === 'colaboradores') loadColaboradores();
             if (tabName === 'operacoes') loadOperacoes();
+        }
+
+        async function resetDatabase() {
+            if (confirm('⚠️ CUIDADO! Isso vai deletar TODOS os colaboradores e operações. Tem certeza?')) {
+                try {
+                    const res = await fetch(`${API_URL}/admin/reset-db`, {
+                        method: 'POST'
+                    });
+                    const data = await res.json();
+                    if (data.status === 'ok') {
+                        alert('✓ Banco de dados limpo com sucesso! Comece a cadastrar novos dados.');
+                        loadColaboradores();
+                        loadOperacoes();
+                        loadDashboard();
+                    } else {
+                        alert(`✗ Erro: ${data.message}`);
+                    }
+                } catch (err) {
+                    alert('✗ Erro na conexão');
+                }
+            }
         }
 
         function showMessage(elementId, message, type) {

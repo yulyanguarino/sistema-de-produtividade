@@ -276,6 +276,14 @@ def calcular_ranking_conferentes(
     ]
 
 
+# ---- Admin ----
+def limpar_banco_dados(db: Session) -> None:
+    """Deleta todas as operações e colaboradores"""
+    db.query(Operacao).delete()
+    db.query(Colaborador).delete()
+    db.commit()
+
+
 def montar_dashboard(
     db: Session,
     dia: Optional[date] = None,
