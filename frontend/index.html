@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Produtividade Operacional</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #f0f0f0;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .list-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            color: #667eea;
+            font-size: 36px;
+            font-weight: bold;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+
+        .ranking-pos {
+            font-weight: bold;
+            color: #667eea;
+            min-width: 30px;
+        }
+
+        .ranking-name {
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .ranking-stats {
+            color: #666;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📦 Sistema de Produtividade Operacional</h1>
+            <p>Registro de separação e conferência de pedidos</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('colaboradores')">Colaboradores</button>
+            <button class="tab-btn" onclick="switchTab('operacoes')">Operações</button>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dashboard" id="indicadores">
+                <div class="stat-card">
+                    <h3>Total de Pedidos</h3>
+                    <div class="number" id="total-pedidos">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Itens Separados</h3>
+                    <div class="number" id="total-separados">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Itens Conferidos</h3>
+                    <div class="number" id="total-conferidos">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Colaboradores Ativos</h3>
+                    <div class="number" id="colabs-ativos">0</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🏆 Ranking - Separadores</h2>
+                <div id="ranking-separadores"></div>
+            </div>
+
+            <div class="card">
+                <h2>✅ Ranking - Conferentes</h2>
+                <div id="ranking-conferentes"></div>
+            </div>
+        </div>
+
+        <!-- COLABORADORES -->
+        <div id="colaboradores" class="tab-content">
+            <div class="card">
+                <h2>➕ Cadastrar Colaborador</h2>
+                <div id="msg-colab" class="message"></div>
+                <form onsubmit="criarColaborador(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome</label>
+                            <input type="text" id="colab-nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="colab-ativo">
+                                <option value="true">Ativo</option>
+                                <option value="false">Inativo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit">Cadastrar</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>📋 Lista de Colaboradores</h2>
+                <div class="list-container">
+                    <table id="colabs-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Status</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- OPERAÇÕES -->
+        <div id="operacoes" class="tab-content">
+            <div class="card">
+                <h2>➕ Registrar Operação</h2>
+                <div id="msg-op" class="message"></div>
+                <form onsubmit="criarOperacao(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Data</label>
+                            <input type="date" id="op-data" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Pedido</label>
+                            <input type="text" id="op-pedido" placeholder="PED-001" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Separador</label>
+                            <select id="op-separador" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Qtd Itens Separados</label>
+                            <input type="number" id="op-qtd-sep" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Conferente</label>
+                            <select id="op-conferente" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Qtd Itens Conferidos</label>
+                            <input type="number" id="op-qtd-conf" min="0" required>
+                        </div>
+                    </div>
+                    <button type="submit">Registrar Operação</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>📝 Lista de Operações</h2>
+                <div class="list-container">
+                    <table id="ops-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Data</th>
+                                <th>Pedido</th>
+                                <th>Separador</th>
+                                <th>Itens Sep.</th>
+                                <th>Conferente</th>
+                                <th>Itens Conf.</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'dashboard') loadDashboard();
+            if (tabName === 'colaboradores') loadColaboradores();
+            if (tabName === 'operacoes') loadOperacoes();
+        }
+
+        function showMessage(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.textContent = message;
+            el.className = `message show ${type}`;
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        async function criarColaborador(e) {
+            e.preventDefault();
+            const nome = document.getElementById('colab-nome').value;
+            const ativo = document.getElementById('colab-ativo').value === 'true';
+
+            try {
+                const res = await fetch(`${API_URL}/colaboradores`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, ativo })
+                });
+                if (res.ok) {
+                    showMessage('msg-colab', '✓ Colaborador cadastrado!', 'success');
+                    e.target.reset();
+                    loadColaboradores();
+                } else {
+                    showMessage('msg-colab', '✗ Erro ao cadastrar', 'error');
+                }
+            } catch (err) {
+                showMessage('msg-colab', '✗ Erro na conexão', 'error');
+            }
+        }
+
+        async function loadColaboradores() {
+            try {
+                const res = await fetch(`${API_URL}/colaboradores`);
+                const data = await res.json();
+
+                const tbody = document.querySelector('#colabs-table tbody');
+                tbody.innerHTML = data.map(c => `
+                    <tr>
+                        <td>${c.id}</td>
+                        <td>${c.nome}</td>
+                        <td><span class="badge ${c.ativo ? 'active' : 'inactive'}">${c.ativo ? 'Ativo' : 'Inativo'}</span></td>
+                        <td>
+                            <button onclick="toggleColab(${c.id}, ${!c.ativo})" style="margin-right: 5px;">Alternar</button>
+                            <button onclick="deleteColab(${c.id})" style="background: #dc3545;">Deletar</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                // Preencher selects de operação
+                const opts = data.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+                document.getElementById('op-separador').innerHTML = opts;
+                document.getElementById('op-conferente').innerHTML = opts;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function toggleColab(id, ativo) {
+            try {
+                const res = await fetch(`${API_URL}/colaboradores/${id}/status?ativo=${ativo}`, {
+                    method: 'PATCH'
+                });
+                if (res.ok) loadColaboradores();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function deleteColab(id) {
+            if (confirm('Tem certeza que deseja deletar este colaborador?')) {
+                try {
+                    const res = await fetch(`${API_URL}/colaboradores/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (res.ok) {
+                        showMessage('msg-colab', '✓ Colaborador deletado!', 'success');
+                        loadColaboradores();
+                        loadOperacoes();
+                        loadDashboard();
+                    } else {
+                        showMessage('msg-colab', '✗ Erro ao deletar', 'error');
+                    }
+                } catch (err) {
+                    showMessage('msg-colab', '✗ Erro na conexão', 'error');
+                }
+            }
+        }
+
+        async function criarOperacao(e) {
+            e.preventDefault();
+            const data = document.getElementById('op-data').value;
+            const pedido = document.getElementById('op-pedido').value;
+            const separador_id = parseInt(document.getElementById('op-separador').value);
+            const qtd_itens_separados = parseInt(document.getElementById('op-qtd-sep').value);
+            const conferente_id = parseInt(document.getElementById('op-conferente').value);
+            const qtd_itens_conferidos = parseInt(document.getElementById('op-qtd-conf').value);
+
+            try {
+                const res = await fetch(`${API_URL}/operacoes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data, pedido, separador_id, qtd_itens_separados,
+                        conferente_id, qtd_itens_conferidos
+                    })
+                });
+                if (res.ok) {
+                    showMessage('msg-op', '✓ Operação registrada!', 'success');
+                    e.target.reset();
+                    loadOperacoes();
+                    loadDashboard();
+                } else {
+                    const err = await res.json();
+                    showMessage('msg-op', `✗ ${err.detail}`, 'error');
+                }
+            } catch (err) {
+                showMessage('msg-op', '✗ Erro na conexão', 'error');
+            }
+        }
+
+        async function loadOperacoes() {
+            try {
+                const res = await fetch(`${API_URL}/operacoes`);
+                const data = await res.json();
+
+                const tbody = document.querySelector('#ops-table tbody');
+                tbody.innerHTML = data.map(o => `
+                    <tr>
+                        <td>${o.id}</td>
+                        <td>${o.data}</td>
+                        <td>${o.pedido}</td>
+                        <td>${o.separador_nome}</td>
+                        <td>${o.qtd_itens_separados}</td>
+                        <td>${o.conferente_nome}</td>
+                        <td>${o.qtd_itens_conferidos}</td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API_URL}/dashboard`);
+                const data = await res.json();
+
+                document.getElementById('total-pedidos').textContent = data.indicadores.total_pedidos;
+                document.getElementById('total-separados').textContent = data.indicadores.total_itens_separados;
+                document.getElementById('total-conferidos').textContent = data.indicadores.total_itens_conferidos;
+                document.getElementById('colabs-ativos').textContent = data.indicadores.colaboradores_ativos;
+
+                const sepHtml = data.ranking.separadores.map((r, i) => `
+                    <div class="ranking-item">
+                        <div class="ranking-pos">#${i + 1}</div>
+                        <div class="ranking-name">${r.colaborador_nome}</div>
+                        <div class="ranking-stats">${r.qtd_pedidos} pedidos • ${r.qtd_itens} itens</div>
+                    </div>
+                `).join('');
+                document.getElementById('ranking-separadores').innerHTML = sepHtml || '<p style="color:#999">Sem dados</p>';
+
+                const confHtml = data.ranking.conferentes.map((r, i) => `
+                    <div class="ranking-item">
+                        <div class="ranking-pos">#${i + 1}</div>
+                        <div class="ranking-name">${r.colaborador_nome}</div>
+                        <div class="ranking-stats">${r.qtd_pedidos} pedidos • ${r.qtd_itens} itens</div>
+                    </div>
+                `).join('');
+                document.getElementById('ranking-conferentes').innerHTML = confHtml || '<p style="color:#999">Sem dados</p>';
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Load inicial
+        document.getElementById('op-data').valueAsDate = new Date();
+        loadColaboradores();
+        loadDashboard();
+    </script>
+</body>
+</html>

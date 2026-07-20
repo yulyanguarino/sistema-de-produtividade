@@ -63,6 +63,16 @@ def alternar_status_colaborador(db: Session, colaborador_id: int, ativo: bool) -
     return colaborador
 
 
+def deletar_colaborador(db: Session, colaborador_id: int) -> bool:
+    colaborador = obter_colaborador(db, colaborador_id)
+    if not colaborador:
+        return False
+
+    db.delete(colaborador)
+    db.commit()
+    return True
+
+
 # ---- Operações ----
 def criar_operacao(db: Session, dados: OperacaoCreate) -> Operacao:
     separador = obter_colaborador(db, dados.separador_id)
