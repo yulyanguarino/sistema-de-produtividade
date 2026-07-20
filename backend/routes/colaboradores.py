@@ -44,7 +44,10 @@ def alternar_status_colaborador(colaborador_id: int, ativo: bool, db: Session = 
 
 @router.delete("/{colaborador_id}", status_code=204)
 def deletar_colaborador(colaborador_id: int, db: Session = Depends(get_db)):
-    sucesso = services.deletar_colaborador(db, colaborador_id)
-    if not sucesso:
-        raise HTTPException(status_code=404, detail="Colaborador não encontrado")
-    return None
+    try:
+        sucesso = services.deletar_colaborador(db, colaborador_id)
+        if not sucesso:
+            raise HTTPException(status_code=404, detail="Colaborador não encontrado")
+        return None
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

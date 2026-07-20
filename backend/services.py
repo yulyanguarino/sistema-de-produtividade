@@ -68,6 +68,16 @@ def deletar_colaborador(db: Session, colaborador_id: int) -> bool:
     if not colaborador:
         return False
 
+    # Verificar se há operações relacionadas
+    ops_como_separador = db.query(Operacao).filter(Operacao.separador_id == colaborador_id).count()
+    ops_como_conferente = db.query(Operacao).filter(Operacao.conferente_id == colaborador_id).count()
+
+    if ops_como_separador > 0 or ops_como_conferente > 0:
+        raise ValueError(
+            f"Não é possível deletar este colaborador. "
+            f"Existem {ops_como_separador + ops_como_conferente} operação(ões) relacionada(s)."
+        )
+
     db.delete(colaborador)
     db.commit()
     return True

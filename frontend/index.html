@@ -510,7 +510,8 @@
                         loadOperacoes();
                         loadDashboard();
                     } else {
-                        showMessage('msg-colab', '✗ Erro ao deletar', 'error');
+                        const err = await res.json();
+                        showMessage('msg-colab', `✗ ${err.detail || 'Erro ao deletar'}`, 'error');
                     }
                 } catch (err) {
                     showMessage('msg-colab', '✗ Erro na conexão', 'error');
