@@ -311,16 +311,18 @@ def _obter_dias_disponiveis(
     if conferente_id:
         query = query.filter(Operacao.conferente_id == conferente_id)
     rows = query.all()
-    dias_set = set()
-    primeiro_ano_mes = None
-    for r in rows:
-        dias_set.add(r[0].day)
-        if primeiro_ano_mes is None:
-            primeiro_ano_mes = r[0].replace(day=1)
-    if not primeiro_ano_mes:
+    if not rows:
         return []
+    dias_set = set(r[0].day for r in rows)
     dias_ordenados = sorted(dias_set)
-    return [primeiro_ano_mes.replace(day=d) for d in dias_ordenados]
+    primeiro_ano_mes = rows[0][0].replace(day=1)
+    resultado = []
+    for d in dias_ordenados:
+        try:
+            resultado.append(primeiro_ano_mes.replace(day=d))
+        except ValueError:
+            pass
+    return resultado
 
 
 def _obter_separadores_disponiveis(
