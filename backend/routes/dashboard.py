@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import date
 from database import get_db
-from schemas import DashboardResponse
+from schemas import DashboardResponse, DashboardFiltrosResponse
 import services
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -30,5 +30,20 @@ def obter_dashboard(
             conferente_id=conferente_id,
         )
     except ValueError as e:
-        from fastapi import HTTPException
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/filtros", response_model=DashboardFiltrosResponse)
+def obter_dashboard_filtros(
+    dia: Optional[date] = Query(None),
+    mes: Optional[str] = Query(None),
+    separador_id: Optional[int] = Query(None),
+    conferente_id: Optional[int] = Query(None),
+    db: Session = Depends(get_db),
+):
+    try:
+        return services.montar_dashboard_filtros(
+            db, dia=dia, mes=mes, separador_id=separador_id, conferente_id=conferente_id
+        )
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

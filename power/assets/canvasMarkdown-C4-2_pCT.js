@@ -1,0 +1,1 @@
+const a=e=>e.type==="text/markdown"||/\.md$/i.test(e.name),t=e=>{if(e.kind!=="reference"||e.source.type!=="reference")return null;const n=e.metadata.markdown;return!n||typeof n.fileName!="string"||typeof n.content!="string"||n.mimeType!=="text/markdown"?null:n},r=e=>!!t(e);export{r as a,t as g,a as i};

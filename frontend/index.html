@@ -4,266 +4,409 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Produtividade Operacional</title>
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-50: #f0f9ff;
+            --primary-500: #3b82f6;
+            --primary-900: #1e3a8a;
+            --neutral-50: #f9fafb;
+            --neutral-500: #6b7280;
+            --neutral-900: #111827;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --success-dark: #065f46;
+            --error: #ef4444;
+            --error-light: #fee2e2;
+            --error-dark: #7f1d1d;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --warning-dark: #78350f;
+            --info: #3b82f6;
+            --background: #ffffff;
+            --surface: #f9fafb;
+            --text: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --primary: #3b82f6;
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 0.75rem;
+            --space-lg: 1rem;
+            --space-xl: 1.5rem;
+            --space-2xl: 2rem;
+            --space-3xl: 3rem;
+            --space-4xl: 4rem;
+            --font-family: 'General Sans', system-ui, -apple-system, sans-serif;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+            --font-size-4xl: 2.25rem;
+            --radius-sm: 2px;
+            --radius-md: 4px;
+            --radius-lg: 8px;
+            --radius-xl: 12px;
+            --radius-2xl: 16px;
+            --radius-full: 9999px;
+            --shadow-xs: 0 1px 2px rgba(0,0,0,.05);
+            --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,.1);
+            --shadow-lg: 0 8px 25px rgba(0,0,0,.15);
+            --shadow-xl: 0 20px 40px rgba(0,0,0,.1);
+            --duration-fast: 150ms;
+            --duration-base: 300ms;
+            --duration-slow: 600ms;
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #111827;
+                --surface: #1f2937;
+                --text: #f9fafb;
+                --text-secondary: #9ca3af;
+                --border: #374151;
+                --primary: #3b82f6;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: var(--font-family);
+            background: var(--background);
+            color: var(--text);
+            font-size: var(--font-size-base);
+            line-height: 1.6;
+            padding: var(--space-lg);
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1400px; margin: 0 auto; }
 
         header {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: var(--background);
+            padding: var(--space-xl);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-xl);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
         }
 
         header h1 {
-            color: #333;
-            margin-bottom: 5px;
+            color: var(--text);
+            margin-bottom: var(--space-sm);
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
         }
 
         header p {
-            color: #666;
-            font-size: 14px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-sm);
         }
 
         .tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            gap: var(--space-sm);
+            margin-bottom: var(--space-xl);
+            background: var(--background);
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
         }
 
         .tab-btn {
-            padding: 10px 20px;
+            padding: 0.75rem 1.5rem;
             border: none;
-            background: #f0f0f0;
+            background: var(--surface);
             cursor: pointer;
-            border-radius: 4px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .tab-btn.active {
-            background: #667eea;
-            color: white;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            color: var(--text);
+            transition: all var(--duration-base) var(--ease-smooth);
+            border: 1px solid var(--border);
         }
 
         .tab-btn:hover {
-            background: #667eea;
+            background: var(--primary);
             color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary);
         }
 
-        .tab-content {
-            display: none;
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
         }
 
-        .tab-content.active {
-            display: block;
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: var(--space-xl);
+            align-items: start;
+        }
+
+        .filters-sidebar {
+            position: sticky;
+            top: var(--space-xl);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+            height: fit-content;
+        }
+
+        .filters-sidebar h3 {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: var(--space-sm);
         }
 
         .card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: var(--space-xl);
+            overflow: hidden;
+            transition: all var(--duration-base) var(--ease-smooth);
+            margin-bottom: var(--space-xl);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+            border-color: #d1d5db;
         }
 
         .card h2 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 18px;
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: var(--space-lg);
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: var(--space-lg);
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
+            margin-bottom: var(--space-sm);
+            color: var(--text);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
         }
 
         input, select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            font-size: var(--font-size-sm);
+            font-family: var(--font-family);
+            background: var(--background);
+            color: var(--text);
+            transition: all var(--duration-base) var(--ease-smooth);
         }
 
         input:focus, select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, .1), 0 0 0 6px var(--primary);
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        button {
-            background: #667eea;
+        button, .btn {
+            font-family: var(--font-family);
+            background: var(--primary);
             color: white;
-            padding: 10px 20px;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        button:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .list-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th {
-            background: #f5f5f5;
-            padding: 12px;
-            text-align: left;
+            border-radius: var(--radius-full);
             font-weight: 600;
-            color: #333;
-            border-bottom: 2px solid #ddd;
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            transition: transform var(--duration-base) var(--ease-smooth), box-shadow var(--duration-base) var(--ease-smooth), background-color var(--duration-base) var(--ease-smooth);
         }
 
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
+        button:hover, .btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
         }
 
-        tr:hover {
-            background: #f9f9f9;
+        button:active, .btn:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-md);
         }
 
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
+        button:focus-visible, .btn:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, .1), 0 0 0 6px var(--primary);
         }
 
-        .badge.active {
-            background: #d4edda;
-            color: #155724;
+        .btn-danger {
+            background: var(--error);
         }
 
-        .badge.inactive {
-            background: #f8d7da;
-            color: #721c24;
+        .btn-danger:hover {
+            background: #dc2626;
+            box-shadow: 0 20px 40px rgba(239, 68, 68, 0.3);
         }
 
         .dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-xl);
+            margin-bottom: var(--space-xl);
         }
 
         .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: var(--space-xl);
             text-align: center;
+            transform-style: preserve-3d;
+            transition: transform var(--duration-base) var(--ease-smooth), box-shadow var(--duration-base) var(--ease-smooth), border-color var(--duration-base) var(--ease-smooth);
+        }
+
+        .stat-card:hover {
+            transform: perspective(600px) rotateX(2deg) rotateY(-2deg) translateY(-4px);
+            box-shadow: 0 0 0 1px var(--primary), 0 0 20px rgba(59, 130, 246, .4), var(--shadow-lg);
+            border-color: var(--primary);
         }
 
         .stat-card h3 {
-            color: #666;
-            font-size: 12px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
             text-transform: uppercase;
-            margin-bottom: 10px;
+            letter-spacing: .5px;
+            margin-bottom: var(--space-md);
+            font-weight: 600;
         }
 
         .stat-card .number {
-            color: #667eea;
-            font-size: 36px;
-            font-weight: bold;
+            color: var(--primary);
+            font-size: var(--font-size-4xl);
+            font-weight: 700;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: var(--space-xl);
+            margin-bottom: var(--space-xl);
         }
 
         .message {
-            padding: 12px;
-            border-radius: 4px;
-            margin-bottom: 15px;
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-lg);
             display: none;
         }
 
-        .message.show {
-            display: block;
+        .message.show { display: block; }
+        .message.success { background: var(--success-light); color: var(--success-dark); border: 1px solid var(--success); }
+        .message.error { background: var(--error-light); color: var(--error-dark); border: 1px solid var(--error); }
+
+        .list-container { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
         }
 
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        th {
+            background: var(--surface);
+            padding: var(--space-lg);
+            text-align: left;
+            font-weight: 600;
+            color: var(--text);
+            border-bottom: 2px solid var(--border);
         }
 
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        td {
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover { background: var(--surface); }
+
+        .badge {
+            display: inline-block;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-lg);
+            font-size: var(--font-size-xs);
+            font-weight: 600;
+        }
+
+        .badge.active {
+            background: var(--success-light);
+            color: var(--success-dark);
+        }
+
+        .badge.inactive {
+            background: var(--error-light);
+            color: var(--error-dark);
         }
 
         .ranking-item {
             display: flex;
             justify-content: space-between;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
+            padding: var(--space-lg);
+            border-bottom: 1px solid var(--border);
         }
 
-        .ranking-item:last-child {
-            border-bottom: none;
-        }
+        .ranking-item:last-child { border-bottom: none; }
 
         .ranking-pos {
             font-weight: bold;
-            color: #667eea;
+            color: var(--primary);
             min-width: 30px;
         }
 
-        .ranking-name {
-            flex: 1;
-            margin: 0 15px;
-        }
+        .ranking-name { flex: 1; margin: 0 var(--space-lg); }
 
         .ranking-stats {
-            color: #666;
-            font-size: 13px;
+            color: var(--text-secondary);
+            font-size: var(--font-size-xs);
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-layout { grid-template-columns: 1fr; }
+            .filters-sidebar { position: static; }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: var(--space-md); }
+            .dashboard { grid-template-columns: 1fr; }
+            .tabs { gap: var(--space-xs); }
+            .tab-btn { padding: 0.5rem 1rem; font-size: var(--font-size-xs); }
         }
     </style>
 </head>
@@ -278,38 +421,73 @@
             <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
             <button class="tab-btn" onclick="switchTab('colaboradores')">Colaboradores</button>
             <button class="tab-btn" onclick="switchTab('operacoes')">Operações</button>
-            <button class="tab-btn" onclick="resetDatabase()" style="background: #dc3545; margin-left: auto;">🗑️ Limpar Tudo</button>
+            <button class="tab-btn btn-danger" onclick="resetDatabase()" style="margin-left: auto;">🗑️ Limpar Tudo</button>
         </div>
 
         <!-- DASHBOARD -->
         <div id="dashboard" class="tab-content active">
-            <div class="dashboard" id="indicadores">
-                <div class="stat-card">
-                    <h3>Total de Pedidos</h3>
-                    <div class="number" id="total-pedidos">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Itens Separados</h3>
-                    <div class="number" id="total-separados">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Itens Conferidos</h3>
-                    <div class="number" id="total-conferidos">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Colaboradores Ativos</h3>
-                    <div class="number" id="colabs-ativos">0</div>
-                </div>
-            </div>
+            <div class="dashboard-layout">
+                <aside class="filters-sidebar">
+                    <h3>Filtros</h3>
+                    <div class="form-group">
+                        <label for="filtro-mes">Mês</label>
+                        <select id="filtro-mes" onchange="onFiltroChange('mes')"><option value="">Mostrar Todos</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-dia">Dia</label>
+                        <select id="filtro-dia" onchange="onFiltroChange('dia')"><option value="">Mostrar Todos</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-separador">Separador</label>
+                        <select id="filtro-separador" onchange="onFiltroChange('separador')"><option value="">Mostrar Todos</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-conferente">Conferente</label>
+                        <select id="filtro-conferente" onchange="onFiltroChange('conferente')"><option value="">Mostrar Todos</option></select>
+                    </div>
+                </aside>
 
-            <div class="card">
-                <h2>🏆 Ranking - Separadores</h2>
-                <div id="ranking-separadores"></div>
-            </div>
+                <div class="dashboard-main">
+                    <div class="dashboard" id="indicadores">
+                        <div class="stat-card">
+                            <h3>Total de Pedidos</h3>
+                            <div class="number" id="total-pedidos">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Itens Separados</h3>
+                            <div class="number" id="total-separados">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Itens Conferidos</h3>
+                            <div class="number" id="total-conferidos">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Colaboradores Ativos</h3>
+                            <div class="number" id="colabs-ativos">0</div>
+                        </div>
+                    </div>
 
-            <div class="card">
-                <h2>✅ Ranking - Conferentes</h2>
-                <div id="ranking-conferentes"></div>
+                    <div class="charts-grid">
+                        <div class="card">
+                            <h2>📊 Produção por Separador (Itens)</h2>
+                            <canvas id="chart-separadores" height="260"></canvas>
+                        </div>
+                        <div class="card">
+                            <h2>✅ Produção por Conferente (Itens)</h2>
+                            <canvas id="chart-conferentes" height="260"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>🏆 Ranking - Separadores</h2>
+                        <div id="ranking-separadores"></div>
+                    </div>
+
+                    <div class="card">
+                        <h2>✅ Ranking - Conferentes</h2>
+                        <div id="ranking-conferentes"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -319,7 +497,7 @@
                 <h2>➕ Cadastrar Colaborador</h2>
                 <div id="msg-colab" class="message"></div>
                 <form onsubmit="criarColaborador(event)">
-                    <div class="form-row">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
                         <div class="form-group">
                             <label>Nome</label>
                             <input type="text" id="colab-nome" required>
@@ -358,7 +536,7 @@
         <div id="operacoes" class="tab-content">
             <div class="card">
                 <h2>📤 Importar Excel</h2>
-                <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+                <p style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--space-lg);">
                     Faça upload de um arquivo .xlsx com as colunas: <strong>DATA</strong>, <strong>QTD ITENS(separador)</strong>, <strong>PEDIDO</strong>, <strong>SEPARADOR</strong>, <strong>QTD ITENS(conferente)</strong>, <strong>CONFERENTE</strong>
                 </p>
                 <div id="msg-import" class="message"></div>
@@ -369,7 +547,7 @@
                     </div>
                     <button type="submit">Importar Dados</button>
                 </form>
-                <div id="resultado-import" style="margin-top: 15px; display: none; padding: 12px; background: #f5f5f5; border-radius: 4px;">
+                <div id="resultado-import" style="margin-top: var(--space-lg); display: none; padding: var(--space-lg); background: var(--surface); border-radius: var(--radius-lg);">
                     <p><strong>Resultado da importação:</strong></p>
                     <p id="resultado-texto"></p>
                 </div>
@@ -379,7 +557,7 @@
                 <h2>➕ Registrar Operação (Manual)</h2>
                 <div id="msg-op" class="message"></div>
                 <form onsubmit="criarOperacao(event)">
-                    <div class="form-row">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
                         <div class="form-group">
                             <label>Data</label>
                             <input type="date" id="op-data" required>
@@ -389,7 +567,7 @@
                             <input type="text" id="op-pedido" placeholder="PED-001" required>
                         </div>
                     </div>
-                    <div class="form-row">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
                         <div class="form-group">
                             <label>Separador</label>
                             <select id="op-separador" required></select>
@@ -399,7 +577,7 @@
                             <input type="number" id="op-qtd-sep" min="0" required>
                         </div>
                     </div>
-                    <div class="form-row">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
                         <div class="form-group">
                             <label>Conferente</label>
                             <select id="op-conferente" required></select>
@@ -437,85 +615,17 @@
 
     <script>
         const API_URL = 'http://localhost:8000';
+        let chartSeparadores, chartConferentes;
+        const filtroState = { mes: '', dia: '', separador_id: '', conferente_id: '' };
 
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
-
-            if (tabName === 'dashboard') loadDashboard();
-            if (tabName === 'colaboradores') loadColaboradores();
-            if (tabName === 'operacoes') loadOperacoes();
-        }
-
-        async function resetDatabase() {
-            if (confirm('⚠️ CUIDADO! Isso vai deletar TODOS os colaboradores e operações. Tem certeza?')) {
-                try {
-                    const res = await fetch(`${API_URL}/admin/reset-db`, {
-                        method: 'POST'
-                    });
-                    const data = await res.json();
-                    if (data.status === 'ok') {
-                        alert('✓ Banco de dados limpo com sucesso! Comece a cadastrar novos dados.');
-                        loadColaboradores();
-                        loadOperacoes();
-                        loadDashboard();
-                    } else {
-                        alert(`✗ Erro: ${data.message}`);
-                    }
-                } catch (err) {
-                    alert('✗ Erro na conexão');
-                }
-            }
-        }
-
-        async function importarExcel(e) {
-            e.preventDefault();
-            const arquivo = document.getElementById('arquivo-excel').files[0];
-            if (!arquivo) {
-                showMessage('msg-import', '✗ Selecione um arquivo', 'error');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('file', arquivo);
-
-            try {
-                const res = await fetch(`${API_URL}/admin/import-excel`, {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
-
-                if (data.status === 'ok') {
-                    showMessage('msg-import', `✓ ${data.importados} operação(ões) importada(s)!`, 'success');
-
-                    // Mostrar resultado detalhado
-                    const resultDiv = document.getElementById('resultado-import');
-                    let texto = `<span style="color: green;">✓ ${data.importados} operação(ões) importada(s) com sucesso</span>`;
-                    if (data.total_erros > 0) {
-                        texto += `<br><span style="color: red;">✗ ${data.total_erros} erro(s):</span><br>`;
-                        data.erros.forEach(err => {
-                            texto += `  • ${err}<br>`;
-                        });
-                    }
-                    document.getElementById('resultado-texto').innerHTML = texto;
-                    resultDiv.style.display = 'block';
-
-                    e.target.reset();
-                    setTimeout(() => {
-                        loadColaboradores();
-                        loadOperacoes();
-                        loadDashboard();
-                    }, 1000);
-                } else {
-                    showMessage('msg-import', `✗ ${data.detail || 'Erro ao importar'}`, 'error');
-                }
-            } catch (err) {
-                showMessage('msg-import', '✗ Erro na conexão', 'error');
-            }
+            if (tabName === 'dashboard') { refreshFilterOptions().then(() => loadDashboard()); }
+            if (tabName === 'colaboradores') { loadColaboradores(); }
+            if (tabName === 'operacoes') { loadOperacoes(); }
         }
 
         function showMessage(elementId, message, type) {
@@ -525,85 +635,132 @@
             setTimeout(() => el.classList.remove('show'), 3000);
         }
 
+        function buildDateParams() {
+            const p = {};
+            if (filtroState.dia) p.dia = filtroState.dia;
+            else if (filtroState.mes) p.mes = filtroState.mes;
+            return p;
+        }
+
+        async function fetchFiltroOptions() {
+            const params = new URLSearchParams(buildDateParams());
+            if (filtroState.separador_id) params.set('separador_id', filtroState.separador_id);
+            if (filtroState.conferente_id) params.set('conferente_id', filtroState.conferente_id);
+            const res = await fetch(`${API_URL}/dashboard/filtros?${params}`);
+            return res.json();
+        }
+
+        function populateSelect(id, items, selectedValue, toOption) {
+            const el = document.getElementById(id);
+            const current = selectedValue ?? '';
+            el.innerHTML = '<option value="">Mostrar Todos</option>' + items.map(toOption).join('');
+            el.value = current;
+            if (el.value !== current) el.value = '';
+        }
+
+        async function refreshFilterOptions() {
+            const opts = await fetchFiltroOptions();
+            populateSelect('filtro-mes', opts.meses, filtroState.mes, m => `<option value="${m}">${m}</option>`);
+            populateSelect('filtro-dia', opts.dias, filtroState.dia, d => `<option value="${d}">${d}</option>`);
+            populateSelect('filtro-separador', opts.separadores, filtroState.separador_id, c => `<option value="${c.id}">${c.nome}</option>`);
+            populateSelect('filtro-conferente', opts.conferentes, filtroState.conferente_id, c => `<option value="${c.id}">${c.nome}</option>`);
+            filtroState.mes = document.getElementById('filtro-mes').value;
+            filtroState.dia = document.getElementById('filtro-dia').value;
+            filtroState.separador_id = document.getElementById('filtro-separador').value;
+            filtroState.conferente_id = document.getElementById('filtro-conferente').value;
+        }
+
+        async function onFiltroChange(campo) {
+            filtroState.mes = document.getElementById('filtro-mes').value;
+            filtroState.dia = document.getElementById('filtro-dia').value;
+            filtroState.separador_id = document.getElementById('filtro-separador').value;
+            filtroState.conferente_id = document.getElementById('filtro-conferente').value;
+            if (campo === 'mes') { filtroState.dia = ''; document.getElementById('filtro-dia').value = ''; }
+            await refreshFilterOptions();
+            await loadDashboard();
+        }
+
+        function initCharts() {
+            const ctxSep = document.getElementById('chart-separadores').getContext('2d');
+            chartSeparadores = new Chart(ctxSep, {
+                type: 'bar',
+                data: { labels: [], datasets: [{ label: 'Itens Separados', data: [], backgroundColor: '#3b82f6', borderRadius: 4 }] },
+                options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } },
+            });
+            const ctxConf = document.getElementById('chart-conferentes').getContext('2d');
+            chartConferentes = new Chart(ctxConf, {
+                type: 'bar',
+                data: { labels: [], datasets: [{ label: 'Itens Conferidos', data: [], backgroundColor: '#10b981', borderRadius: 4 }] },
+                options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } },
+            });
+        }
+
+        function updateCharts(data) {
+            const sep = data.ranking.separadores;
+            chartSeparadores.data.labels = sep.map(r => r.colaborador_nome);
+            chartSeparadores.data.datasets[0].data = sep.map(r => r.qtd_itens);
+            chartSeparadores.update();
+            const conf = data.ranking.conferentes;
+            chartConferentes.data.labels = conf.map(r => r.colaborador_nome);
+            chartConferentes.data.datasets[0].data = conf.map(r => r.qtd_itens);
+            chartConferentes.update();
+        }
+
+        async function loadDashboard() {
+            const params = new URLSearchParams(buildDateParams());
+            if (filtroState.separador_id) params.set('separador_id', filtroState.separador_id);
+            if (filtroState.conferente_id) params.set('conferente_id', filtroState.conferente_id);
+            const res = await fetch(`${API_URL}/dashboard?${params}`);
+            const data = await res.json();
+            document.getElementById('total-pedidos').textContent = data.indicadores.total_pedidos;
+            document.getElementById('total-separados').textContent = data.indicadores.total_itens_separados;
+            document.getElementById('total-conferidos').textContent = data.indicadores.total_itens_conferidos;
+            document.getElementById('colabs-ativos').textContent = data.indicadores.colaboradores_ativos;
+            const sepHtml = data.ranking.separadores.map((r, i) => `<div class="ranking-item"><div class="ranking-pos">#${i + 1}</div><div class="ranking-name">${r.colaborador_nome}</div><div class="ranking-stats">${r.qtd_pedidos} pedidos • ${r.qtd_itens} itens</div></div>`).join('');
+            document.getElementById('ranking-separadores').innerHTML = sepHtml || '<p style="color:var(--text-secondary)">Sem dados</p>';
+            const confHtml = data.ranking.conferentes.map((r, i) => `<div class="ranking-item"><div class="ranking-pos">#${i + 1}</div><div class="ranking-name">${r.colaborador_nome}</div><div class="ranking-stats">${r.qtd_pedidos} pedidos • ${r.qtd_itens} itens</div></div>`).join('');
+            document.getElementById('ranking-conferentes').innerHTML = confHtml || '<p style="color:var(--text-secondary)">Sem dados</p>';
+            updateCharts(data);
+        }
+
         async function criarColaborador(e) {
             e.preventDefault();
             const nome = document.getElementById('colab-nome').value;
             const ativo = document.getElementById('colab-ativo').value === 'true';
-
             try {
-                const res = await fetch(`${API_URL}/colaboradores`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome, ativo })
-                });
-                if (res.ok) {
-                    showMessage('msg-colab', '✓ Colaborador cadastrado!', 'success');
-                    e.target.reset();
-                    loadColaboradores();
-                } else {
-                    showMessage('msg-colab', '✗ Erro ao cadastrar', 'error');
-                }
-            } catch (err) {
-                showMessage('msg-colab', '✗ Erro na conexão', 'error');
-            }
+                const res = await fetch(`${API_URL}/colaboradores`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome, ativo }) });
+                if (res.ok) { showMessage('msg-colab', '✓ Colaborador cadastrado!', 'success'); e.target.reset(); loadColaboradores(); } else showMessage('msg-colab', '✗ Erro ao cadastrar', 'error');
+            } catch (err) { showMessage('msg-colab', '✗ Erro na conexão', 'error'); }
         }
 
         async function loadColaboradores() {
             try {
                 const res = await fetch(`${API_URL}/colaboradores`);
                 const data = await res.json();
-
                 const tbody = document.querySelector('#colabs-table tbody');
-                tbody.innerHTML = data.map(c => `
-                    <tr>
-                        <td>${c.id}</td>
-                        <td>${c.nome}</td>
-                        <td><span class="badge ${c.ativo ? 'active' : 'inactive'}">${c.ativo ? 'Ativo' : 'Inativo'}</span></td>
-                        <td>
-                            <button onclick="toggleColab(${c.id}, ${!c.ativo})" style="margin-right: 5px;">Alternar</button>
-                            <button onclick="deleteColab(${c.id})" style="background: #dc3545;">Deletar</button>
-                        </td>
-                    </tr>
-                `).join('');
-
-                // Preencher selects de operação
+                tbody.innerHTML = data.map(c => `<tr><td>${c.id}</td><td>${c.nome}</td><td><span class="badge ${c.ativo ? 'active' : 'inactive'}">${c.ativo ? 'Ativo' : 'Inativo'}</span></td><td><button onclick="toggleColab(${c.id}, ${!c.ativo})">Alternar</button><button class="btn-danger" style="margin-left: var(--space-sm);" onclick="deleteColab(${c.id})">Deletar</button></td></tr>`).join('');
                 const opts = data.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
                 document.getElementById('op-separador').innerHTML = opts;
                 document.getElementById('op-conferente').innerHTML = opts;
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         async function toggleColab(id, ativo) {
             try {
-                const res = await fetch(`${API_URL}/colaboradores/${id}/status?ativo=${ativo}`, {
-                    method: 'PATCH'
-                });
+                const res = await fetch(`${API_URL}/colaboradores/${id}/status?ativo=${ativo}`, { method: 'PATCH' });
                 if (res.ok) loadColaboradores();
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         async function deleteColab(id) {
             if (confirm('Tem certeza que deseja deletar este colaborador?')) {
                 try {
-                    const res = await fetch(`${API_URL}/colaboradores/${id}`, {
-                        method: 'DELETE'
-                    });
-                    if (res.ok) {
-                        showMessage('msg-colab', '✓ Colaborador deletado!', 'success');
-                        loadColaboradores();
-                        loadOperacoes();
-                        loadDashboard();
-                    } else {
+                    const res = await fetch(`${API_URL}/colaboradores/${id}`, { method: 'DELETE' });
+                    if (res.ok) { showMessage('msg-colab', '✓ Colaborador deletado!', 'success'); loadColaboradores(); loadOperacoes(); loadDashboard(); } else {
                         const err = await res.json();
                         showMessage('msg-colab', `✗ ${err.detail || 'Erro ao deletar'}`, 'error');
                     }
-                } catch (err) {
-                    showMessage('msg-colab', '✗ Erro na conexão', 'error');
-                }
+                } catch (err) { showMessage('msg-colab', '✗ Erro na conexão', 'error'); }
             }
         }
 
@@ -615,88 +772,63 @@
             const qtd_itens_separados = parseInt(document.getElementById('op-qtd-sep').value);
             const conferente_id = parseInt(document.getElementById('op-conferente').value);
             const qtd_itens_conferidos = parseInt(document.getElementById('op-qtd-conf').value);
-
             try {
-                const res = await fetch(`${API_URL}/operacoes`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        data, pedido, separador_id, qtd_itens_separados,
-                        conferente_id, qtd_itens_conferidos
-                    })
-                });
-                if (res.ok) {
-                    showMessage('msg-op', '✓ Operação registrada!', 'success');
-                    e.target.reset();
-                    loadOperacoes();
-                    loadDashboard();
-                } else {
+                const res = await fetch(`${API_URL}/operacoes`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data, pedido, separador_id, qtd_itens_separados, conferente_id, qtd_itens_conferidos }) });
+                if (res.ok) { showMessage('msg-op', '✓ Operação registrada!', 'success'); e.target.reset(); loadOperacoes(); refreshFilterOptions(); loadDashboard(); } else {
                     const err = await res.json();
                     showMessage('msg-op', `✗ ${err.detail}`, 'error');
                 }
-            } catch (err) {
-                showMessage('msg-op', '✗ Erro na conexão', 'error');
-            }
+            } catch (err) { showMessage('msg-op', '✗ Erro na conexão', 'error'); }
         }
 
         async function loadOperacoes() {
             try {
                 const res = await fetch(`${API_URL}/operacoes`);
                 const data = await res.json();
-
                 const tbody = document.querySelector('#ops-table tbody');
-                tbody.innerHTML = data.map(o => `
-                    <tr>
-                        <td>${o.id}</td>
-                        <td>${o.data}</td>
-                        <td>${o.pedido}</td>
-                        <td>${o.separador_nome}</td>
-                        <td>${o.qtd_itens_separados}</td>
-                        <td>${o.conferente_nome}</td>
-                        <td>${o.qtd_itens_conferidos}</td>
-                    </tr>
-                `).join('');
-            } catch (err) {
-                console.error(err);
+                tbody.innerHTML = data.map(o => `<tr><td>${o.id}</td><td>${o.data}</td><td>${o.pedido}</td><td>${o.separador_nome}</td><td>${o.qtd_itens_separados}</td><td>${o.conferente_nome}</td><td>${o.qtd_itens_conferidos}</td></tr>`).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        async function resetDatabase() {
+            if (confirm('⚠️ CUIDADO! Isso vai deletar TODOS os colaboradores e operações. Tem certeza?')) {
+                try {
+                    const res = await fetch(`${API_URL}/admin/reset-db`, { method: 'POST' });
+                    const data = await res.json();
+                    if (data.status === 'ok') { alert('✓ Banco limpo com sucesso!'); loadColaboradores(); loadOperacoes(); refreshFilterOptions(); loadDashboard(); } else alert(`✗ Erro: ${data.message}`);
+                } catch (err) { alert('✗ Erro na conexão'); }
             }
         }
 
-        async function loadDashboard() {
+        async function importarExcel(e) {
+            e.preventDefault();
+            const arquivo = document.getElementById('arquivo-excel').files[0];
+            if (!arquivo) { showMessage('msg-import', '✗ Selecione um arquivo', 'error'); return; }
+            const formData = new FormData();
+            formData.append('file', arquivo);
             try {
-                const res = await fetch(`${API_URL}/dashboard`);
+                const res = await fetch(`${API_URL}/admin/import-excel`, { method: 'POST', body: formData });
                 const data = await res.json();
-
-                document.getElementById('total-pedidos').textContent = data.indicadores.total_pedidos;
-                document.getElementById('total-separados').textContent = data.indicadores.total_itens_separados;
-                document.getElementById('total-conferidos').textContent = data.indicadores.total_itens_conferidos;
-                document.getElementById('colabs-ativos').textContent = data.indicadores.colaboradores_ativos;
-
-                const sepHtml = data.ranking.separadores.map((r, i) => `
-                    <div class="ranking-item">
-                        <div class="ranking-pos">#${i + 1}</div>
-                        <div class="ranking-name">${r.colaborador_nome}</div>
-                        <div class="ranking-stats">${r.qtd_pedidos} pedidos • ${r.qtd_itens} itens</div>
-                    </div>
-                `).join('');
-                document.getElementById('ranking-separadores').innerHTML = sepHtml || '<p style="color:#999">Sem dados</p>';
-
-                const confHtml = data.ranking.conferentes.map((r, i) => `
-                    <div class="ranking-item">
-                        <div class="ranking-pos">#${i + 1}</div>
-                        <div class="ranking-name">${r.colaborador_nome}</div>
-                        <div class="ranking-stats">${r.qtd_pedidos} pedidos • ${r.qtd_itens} itens</div>
-                    </div>
-                `).join('');
-                document.getElementById('ranking-conferentes').innerHTML = confHtml || '<p style="color:#999">Sem dados</p>';
-            } catch (err) {
-                console.error(err);
-            }
+                if (data.status === 'ok') {
+                    showMessage('msg-import', `✓ ${data.importados} operação(ões) importada(s)!`, 'success');
+                    const resultDiv = document.getElementById('resultado-import');
+                    let texto = `<span style="color: var(--success);">✓ ${data.importados} operação(ões) importada(s) com sucesso</span>`;
+                    if (data.total_erros > 0) {
+                        texto += `<br><span style="color: var(--error);">✗ ${data.total_erros} erro(s):</span><br>`;
+                        data.erros.forEach(err => { texto += `  • ${err}<br>`; });
+                    }
+                    document.getElementById('resultado-texto').innerHTML = texto;
+                    resultDiv.style.display = 'block';
+                    e.target.reset();
+                    setTimeout(() => { loadColaboradores(); loadOperacoes(); refreshFilterOptions(); loadDashboard(); }, 1000);
+                } else showMessage('msg-import', `✗ ${data.detail || 'Erro ao importar'}`, 'error');
+            } catch (err) { showMessage('msg-import', '✗ Erro na conexão', 'error'); }
         }
 
-        // Load inicial
         document.getElementById('op-data').valueAsDate = new Date();
+        initCharts();
         loadColaboradores();
-        loadDashboard();
+        refreshFilterOptions().then(() => loadDashboard());
     </script>
 </body>
 </html>

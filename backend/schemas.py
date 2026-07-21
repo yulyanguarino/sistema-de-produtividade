@@ -71,3 +71,15 @@ class DashboardResponse(BaseModel):
     indicadores: IndicadoresRead
     ranking: RankingResponse
     filtros_aplicados: dict
+
+
+class ColaboradorFiltroItem(BaseModel):
+    id: int
+    nome: str
+
+
+class DashboardFiltrosResponse(BaseModel):
+    meses: list[str]
+    dias: list[date]
+    separadores: list[ColaboradorFiltroItem]
+    conferentes: list[ColaboradorFiltroItem]

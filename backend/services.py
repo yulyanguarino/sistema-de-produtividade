@@ -11,6 +11,8 @@ from schemas import (
     RankingItem,
     RankingResponse,
     DashboardResponse,
+    ColaboradorFiltroItem,
+    DashboardFiltrosResponse,
 )
 
 
@@ -274,6 +276,92 @@ def calcular_ranking_conferentes(
         )
         for r in results
     ]
+
+
+# ---- Dashboard Filters (Cascading) ----
+def _obter_meses_disponiveis(
+    db: Session,
+    separador_id: Optional[int] = None,
+    conferente_id: Optional[int] = None,
+) -> list[str]:
+    query = db.query(Operacao.data).distinct()
+    if separador_id:
+        query = query.filter(Operacao.separador_id == separador_id)
+    if conferente_id:
+        query = query.filter(Operacao.conferente_id == conferente_id)
+    rows = query.all()
+    meses_set = {d[0].strftime("%Y-%m") for d in rows if d[0] is not None}
+    return sorted(list(meses_set))
+
+
+def _obter_dias_disponiveis(
+    db: Session,
+    mes: Optional[str] = None,
+    separador_id: Optional[int] = None,
+    conferente_id: Optional[int] = None,
+) -> list[date]:
+    query = db.query(Operacao.data).distinct()
+    query = _aplicar_filtros_data(query, dia=None, mes=mes, periodo_inicio=None, periodo_fim=None)
+    if separador_id:
+        query = query.filter(Operacao.separador_id == separador_id)
+    if conferente_id:
+        query = query.filter(Operacao.conferente_id == conferente_id)
+    rows = query.order_by(Operacao.data.asc()).all()
+    return [r[0] for r in rows]
+
+
+def _obter_separadores_disponiveis(
+    db: Session,
+    dia: Optional[date] = None,
+    mes: Optional[str] = None,
+    conferente_id: Optional[int] = None,
+) -> list[Colaborador]:
+    query = (
+        db.query(Colaborador)
+        .join(Operacao, Operacao.separador_id == Colaborador.id)
+        .distinct()
+    )
+    query = _aplicar_filtros_data(query, dia=dia, mes=mes, periodo_inicio=None, periodo_fim=None)
+    if conferente_id:
+        query = query.filter(Operacao.conferente_id == conferente_id)
+    return query.order_by(Colaborador.nome.asc()).all()
+
+
+def _obter_conferentes_disponiveis(
+    db: Session,
+    dia: Optional[date] = None,
+    mes: Optional[str] = None,
+    separador_id: Optional[int] = None,
+) -> list[Colaborador]:
+    query = (
+        db.query(Colaborador)
+        .join(Operacao, Operacao.conferente_id == Colaborador.id)
+        .distinct()
+    )
+    query = _aplicar_filtros_data(query, dia=dia, mes=mes, periodo_inicio=None, periodo_fim=None)
+    if separador_id:
+        query = query.filter(Operacao.separador_id == separador_id)
+    return query.order_by(Colaborador.nome.asc()).all()
+
+
+def montar_dashboard_filtros(
+    db: Session,
+    dia: Optional[date] = None,
+    mes: Optional[str] = None,
+    separador_id: Optional[int] = None,
+    conferente_id: Optional[int] = None,
+) -> DashboardFiltrosResponse:
+    meses = _obter_meses_disponiveis(db, separador_id, conferente_id)
+    dias = _obter_dias_disponiveis(db, mes, separador_id, conferente_id)
+    separadores = _obter_separadores_disponiveis(db, dia, mes, conferente_id)
+    conferentes = _obter_conferentes_disponiveis(db, dia, mes, separador_id)
+
+    return DashboardFiltrosResponse(
+        meses=meses,
+        dias=dias,
+        separadores=[ColaboradorFiltroItem(id=c.id, nome=c.nome) for c in separadores],
+        conferentes=[ColaboradorFiltroItem(id=c.id, nome=c.nome) for c in conferentes],
+    )
 
 
 # ---- Admin ----
