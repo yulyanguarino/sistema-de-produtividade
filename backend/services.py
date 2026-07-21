@@ -398,12 +398,12 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
 
     for idx, row in enumerate(dados, start=2):  # start=2 pois linha 1 é header
         try:
-            # Normalizar nomes de colunas (aceita PEDIDO ou PEDIDÉ)
+            # Extrair dados
             data = row.get("DATA")
             # Converter datetime para date se necessário (openpyxl retorna datetime)
             if isinstance(data, datetime):
                 data = data.date()
-            pedido = row.get("PEDIDO") or row.get("PEDIDÉ")
+            pedido = row.get("PEDIDO")
             separador_nome = row.get("SEPARADOR", "").strip()
             qtd_sep = row.get("QTD ITENS(separador)")
             conferente_nome = row.get("CONFERENTE", "").strip()
