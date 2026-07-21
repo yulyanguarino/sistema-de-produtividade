@@ -10,42 +10,48 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            /* Design System: Dark Neo-Dashboard Paleta de Cores */
+            /* Design System: Dark Orange Analytics Dashboard */
             /* Backgrounds */
-            --bg-main: #111319;
-            --bg-sidebar: #171A23;
-            --bg-card: #1F2330;
-            --bg-card-hover: #282D3D;
-            --border-subtle: #2D3345;
+            --bg-main: #121010;
+            --bg-sidebar: #1E1B1A;
+            --bg-card: #1E1B1A;
+            --bg-card-hover: #282422;
+            --bg-input: #171514;
+            --border-subtle: #2D2826;
 
-            /* Primary Color */
-            --primary: #A3F3DE;
-            --primary-muted: #223835;
-            --primary-glow: rgba(163, 243, 222, 0.15);
+            /* Primary Color - Orange */
+            --primary: #FF6B00;
+            --primary-hover: #E05E00;
+            --primary-muted: #331B0A;
+            --primary-border: #803800;
+            --primary-glow: rgba(255, 107, 0, 0.25);
 
             /* Accent Colors */
-            --accent-orange: #FCA742;
-            --accent-orange-bg: #33251A;
-            --accent-pink: #E18DB6;
-            --accent-blue: #4C9EFF;
-            --accent-green: #82DF97;
+            --accent-orange: #FF6B00;
+            --accent-orange-bg: #331B0A;
+            --accent-pink: #FF6B00;
+            --accent-blue: #FF6B00;
+            --color-success: #2ECC71;
+            --color-danger: #FF4D4D;
+            --chart-gray: #605E5C;
+            --chart-light: #D9D9D9;
 
             /* Text Colors */
             --text-primary: #FFFFFF;
-            --text-secondary: #939AB1;
-            --text-muted: #5A6178;
+            --text-secondary: #9E9A97;
+            --text-muted: #635E5B;
 
             /* Legacy compatibility (mapped to new palette) */
             --glass-bg-primary: var(--bg-card);
             --glass-bg-secondary: var(--bg-card-hover);
             --glass-border: var(--border-subtle);
             --glass-border-subtle: var(--border-subtle);
-            --bg-ambient-gradient: linear-gradient(135deg, #111319, #171A23);
+            --bg-ambient-gradient: linear-gradient(135deg, #121010, #1E1B1A);
             --blur-glass: blur(0px);
             --blur-glass-heavy: blur(0px);
-            --shadow-glass-card: 0 8px 32px rgba(0, 0, 0, 0.3);
-            --shadow-glass-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
-            --shadow-accent-glow: 0 4px 14px rgba(163, 243, 222, 0.1);
+            --shadow-glass-card: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --shadow-glass-hover: 0 12px 40px rgba(0, 0, 0, 0.6);
+            --shadow-accent-glow: 0 4px 14px rgba(255, 107, 0, 0.2);
 
             --background: var(--bg-card);
             --surface: var(--bg-card-hover);
@@ -58,16 +64,16 @@
             --neutral-50: var(--bg-card-hover);
             --neutral-500: var(--text-secondary);
             --neutral-900: var(--bg-main);
-            --success: var(--accent-green);
-            --success-light: var(--accent-green);
-            --success-dark: var(--accent-green);
-            --error: var(--accent-orange);
-            --error-light: var(--accent-orange);
-            --error-dark: var(--accent-orange);
-            --warning: var(--accent-orange);
-            --warning-light: var(--accent-orange);
-            --warning-dark: var(--accent-orange);
-            --info: var(--accent-blue);
+            --success: var(--color-success);
+            --success-light: var(--color-success);
+            --success-dark: var(--color-success);
+            --error: var(--color-danger);
+            --error-light: var(--color-danger);
+            --error-dark: var(--color-danger);
+            --warning: var(--primary);
+            --warning-light: var(--primary);
+            --warning-dark: var(--primary);
+            --info: var(--primary);
             --space-xs: 0.25rem;
             --space-sm: 0.5rem;
             --space-md: 0.75rem;
@@ -746,13 +752,13 @@
             const ctxSep = document.getElementById('chart-separadores').getContext('2d');
             chartSeparadores = new Chart(ctxSep, {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: 'Itens Separados', data: [], backgroundColor: '#A3F3DE', borderRadius: 4 }] },
+                data: { labels: [], datasets: [{ label: 'Itens Separados', data: [], backgroundColor: '#FF6B00', borderRadius: 4 }] },
                 options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } },
             });
             const ctxConf = document.getElementById('chart-conferentes').getContext('2d');
             chartConferentes = new Chart(ctxConf, {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: 'Itens Conferidos', data: [], backgroundColor: '#82DF97', borderRadius: 4 }] },
+                data: { labels: [], datasets: [{ label: 'Itens Conferidos', data: [], backgroundColor: '#2ECC71', borderRadius: 4 }] },
                 options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } },
             });
         }
