@@ -7,19 +7,20 @@ class Settings(BaseSettings):
     db_host: str = "localhost"
     db_port: int = 5432
     db_name: str = "Dash_Estoque"
-    db_user: str
-    db_password: str
+    db_user: str = "postgres"
+    db_password: str = "postgres"
+    database_url: str = "sqlite:///./produtividade.db"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     @property
-    def database_url(self) -> str:
-        return f"postgresql+psycopg2://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
+    def get_database_url(self) -> str:
+        return self.database_url
 
 
 settings = Settings()
 
-engine = create_engine(settings.database_url, pool_pre_ping=True)
+engine = create_engine(settings.get_database_url, pool_pre_ping=True, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
