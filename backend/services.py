@@ -220,6 +220,8 @@ def calcular_ranking_separadores(
     ).join(Operacao, Operacao.separador_id == Colaborador.id)
 
     query = _aplicar_filtros_data(query, dia, mes, periodo_inicio, periodo_fim)
+    if separador_id:
+        query = query.filter(Operacao.separador_id == separador_id)
     if conferente_id:
         query = query.filter(Operacao.conferente_id == conferente_id)
 
@@ -260,6 +262,8 @@ def calcular_ranking_conferentes(
     query = _aplicar_filtros_data(query, dia, mes, periodo_inicio, periodo_fim)
     if separador_id:
         query = query.filter(Operacao.separador_id == separador_id)
+    if conferente_id:
+        query = query.filter(Operacao.conferente_id == conferente_id)
 
     query = query.group_by(Colaborador.id, Colaborador.nome).order_by(desc(func.sum(Operacao.qtd_itens_conferidos)))
 
