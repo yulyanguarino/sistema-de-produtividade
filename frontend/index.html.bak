@@ -6,75 +6,50 @@
     <title>Sistema de Produtividade Operacional</title>
     <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            /* Design System: Dark Orange Analytics Dashboard */
-            /* Backgrounds */
-            --bg-main: #121010;
-            --bg-sidebar: #1E1B1A;
-            --bg-card: #1E1B1A;
-            --bg-card-hover: #282422;
-            --bg-input: #171514;
-            --border-subtle: #2D2826;
-
-            /* Primary Color - Orange */
-            --primary: #FF6B00;
-            --primary-hover: #E05E00;
-            --primary-muted: #331B0A;
-            --primary-border: #803800;
-            --primary-glow: rgba(255, 107, 0, 0.25);
-
-            /* Accent Colors */
-            --accent-orange: #FF6B00;
-            --accent-orange-bg: #331B0A;
-            --accent-pink: #FF6B00;
-            --accent-blue: #FF6B00;
-            --color-success: #2ECC71;
-            --color-danger: #FF4D4D;
-            --chart-gray: #605E5C;
-            --chart-light: #D9D9D9;
+            /* Design System Luna - Glassmorphism */
+            --glass-bg-primary: rgba(255, 255, 255, 0.40);
+            --glass-bg-secondary: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.40);
+            --glass-border-subtle: rgba(255, 255, 255, 0.20);
+            --bg-ambient-gradient: linear-gradient(135deg, #7A62F8, #A38DFD, #84B1FE);
+            --blur-glass: blur(16px);
+            --blur-glass-heavy: blur(24px);
+            --shadow-glass-card: 0 8px 32px 0 rgba(106, 77, 250, 0.10);
+            --shadow-glass-hover: 0 12px 40px 0 rgba(106, 77, 250, 0.18);
+            --shadow-accent-glow: 0 4px 14px 0 rgba(106, 77, 250, 0.35);
 
             /* Text Colors */
-            --text-primary: #FFFFFF;
-            --text-secondary: #D9E997;
-            --text-muted: #D9E997;
+            --text-primary: #2D3142;
+            --text-secondary: #6C757D;
+            --text-muted: #9EA5B1;
+            --brand-accent: #6A4DFA;
 
-            /* Legacy compatibility (mapped to new palette) */
-            --glass-bg-primary: var(--bg-card);
-            --glass-bg-secondary: var(--bg-card-hover);
-            --glass-border: var(--border-subtle);
-            --glass-border-subtle: var(--border-subtle);
-            --bg-ambient-gradient: linear-gradient(135deg, #121010, #1E1B1A);
-            --blur-glass: blur(0px);
-            --blur-glass-heavy: blur(0px);
-            --shadow-glass-card: 0 8px 32px rgba(0, 0, 0, 0.5);
-            --shadow-glass-hover: 0 12px 40px rgba(0, 0, 0, 0.6);
-            --shadow-accent-glow: 0 4px 14px rgba(255, 107, 0, 0.2);
-
-            --background: var(--bg-card);
-            --surface: var(--bg-card-hover);
-            --text: var(--text-primary);
-            --border: var(--border-subtle);
-
-            --primary-50: var(--primary-glow);
-            --primary-500: var(--primary);
-            --primary-900: var(--bg-card);
-            --neutral-50: var(--bg-card-hover);
-            --neutral-500: var(--text-secondary);
-            --neutral-900: var(--bg-main);
-            --success: var(--color-success);
-            --success-light: var(--color-success);
-            --success-dark: var(--color-success);
-            --error: var(--color-danger);
-            --error-light: var(--color-danger);
-            --error-dark: var(--color-danger);
-            --warning: var(--primary);
-            --warning-light: var(--primary);
-            --warning-dark: var(--primary);
-            --info: var(--primary);
+            /* Legacy compatibility */
+            --primary-50: #f0f9ff;
+            --primary-500: #6A4DFA;
+            --primary-900: #2D3142;
+            --neutral-50: rgba(255, 255, 255, 0.25);
+            --neutral-500: #6C757D;
+            --neutral-900: #2D3142;
+            --success: #42C288;
+            --success-light: #72EAA8;
+            --success-dark: #42C288;
+            --error: #FF65A5;
+            --error-light: #FFB1D8;
+            --error-dark: #FC5C9B;
+            --warning: #8B66FA;
+            --warning-light: #B8A3FD;
+            --warning-dark: #6A4DFA;
+            --info: #5A8BFA;
+            --background: #ffffff;
+            --surface: rgba(255, 255, 255, 0.40);
+            --text: #2D3142;
+            --border: rgba(255, 255, 255, 0.40);
+            --primary: #6A4DFA;
             --space-xs: 0.25rem;
             --space-sm: 0.5rem;
             --space-md: 0.75rem;
@@ -526,12 +501,12 @@
                     <div class="charts-grid">
                         <div class="card">
                             <h2>📊 Produção por Separador</h2>
-                            <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-base);">Quantidade de itens separados</p>
+                            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--space-lg);">Quantidade de itens separados</p>
                             <canvas id="chart-separadores" height="260"></canvas>
                         </div>
                         <div class="card">
                             <h2>✅ Monitoramento de Conferência</h2>
-                            <p style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-base);">Quantidade de itens conferidos</p>
+                            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--space-lg);">Quantidade de itens conferidos</p>
                             <canvas id="chart-conferentes" height="260"></canvas>
                         </div>
                     </div>
@@ -750,18 +725,17 @@
         }
 
         function initCharts() {
-            Chart.register(ChartDataLabels);
             const ctxSep = document.getElementById('chart-separadores').getContext('2d');
             chartSeparadores = new Chart(ctxSep, {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: 'Itens Separados', data: [], backgroundColor: '#FF6B00', borderRadius: 4 }] },
-                options: { indexAxis: 'y', responsive: true, layout: { padding: { right: 40 } }, plugins: { legend: { display: false }, datalabels: { color: '#D9E997', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'right', offset: 5 } }, scales: { x: { beginAtZero: true }, y: { ticks: { color: '#D9E997' } } } },
+                data: { labels: [], datasets: [{ label: 'Itens Separados', data: [], backgroundColor: '#5A8BFA', borderRadius: 4 }] },
+                options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } },
             });
             const ctxConf = document.getElementById('chart-conferentes').getContext('2d');
             chartConferentes = new Chart(ctxConf, {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: 'Itens Conferidos', data: [], backgroundColor: '#2ECC71', borderRadius: 4 }] },
-                options: { indexAxis: 'y', responsive: true, layout: { padding: { right: 40 } }, plugins: { legend: { display: false }, datalabels: { color: '#D9E997', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'right', offset: 5 } }, scales: { x: { beginAtZero: true }, y: { ticks: { color: '#D9E997' } } } },
+                data: { labels: [], datasets: [{ label: 'Itens Conferidos', data: [], backgroundColor: '#10b981', borderRadius: 4 }] },
+                options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } },
             });
         }
 
