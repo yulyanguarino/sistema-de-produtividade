@@ -315,13 +315,11 @@ def _obter_dias_disponiveis(
         return []
     dias_set = set(r[0].day for r in rows)
     dias_ordenados = sorted(dias_set)
-    primeiro_ano_mes = rows[0][0].replace(day=1)
+    primeiro_ano = rows[0][0].year
+    mes_com_31_dias = datetime.strptime(f"{primeiro_ano}-01-01", "%Y-%m-%d").date()
     resultado = []
     for d in dias_ordenados:
-        try:
-            resultado.append(primeiro_ano_mes.replace(day=d))
-        except ValueError:
-            pass
+        resultado.append(mes_com_31_dias.replace(day=d))
     return resultado
 
 
