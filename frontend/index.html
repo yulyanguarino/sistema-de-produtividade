@@ -196,7 +196,7 @@
         .card:hover {
             box-shadow: var(--shadow-xl);
             transform: translateY(-4px);
-            border-color: #d1d5db;
+            border-color: var(--border);
         }
 
         .card h2 {
@@ -258,7 +258,7 @@
         }
 
         button:hover, .btn:hover {
-            background: #2563eb;
+            background: var(--primary-900);
             transform: translateY(-2px);
             box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
         }
@@ -278,7 +278,7 @@
         }
 
         .btn-danger:hover {
-            background: #dc2626;
+            background: var(--error-dark);
             box-shadow: 0 20px 40px rgba(239, 68, 68, 0.3);
         }
 
@@ -677,7 +677,7 @@
 
         function formatDia(dataStr) {
             const data = new Date(dataStr + 'T00:00:00');
-            return String(data.getDate()).padStart(2, '0');
+            return String(data.getDate());
         }
 
         async function refreshFilterOptions() {
