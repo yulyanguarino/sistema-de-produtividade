@@ -3,694 +3,687 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Produtividade Operacional</title>
-    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+    <title>Sistema de Produtividade - Staking AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            /* Design System Luna - Glassmorphism */
-            --glass-bg-primary: rgba(255, 255, 255, 0.40);
-            --glass-bg-secondary: rgba(255, 255, 255, 0.25);
-            --glass-border: rgba(255, 255, 255, 0.40);
-            --glass-border-subtle: rgba(255, 255, 255, 0.20);
-            --bg-ambient-gradient: linear-gradient(135deg, #7A62F8, #A38DFD, #84B1FE);
-            --blur-glass: blur(16px);
-            --blur-glass-heavy: blur(24px);
-            --shadow-glass-card: 0 8px 32px 0 rgba(106, 77, 250, 0.10);
-            --shadow-glass-hover: 0 12px 40px 0 rgba(106, 77, 250, 0.18);
-            --shadow-accent-glow: 0 4px 14px 0 rgba(106, 77, 250, 0.35);
+            /* STAKING AI DESIGN SYSTEM - Dark Tech FinTech */
+            /* Backgrounds */
+            --color-bg-base: #121315;
+            --color-bg-sidebar: #18191C;
+            --color-bg-card: #1E1F23;
+            --color-bg-card-hover: #25272C;
+            --color-bg-input: #16171A;
 
-            /* Text Colors */
-            --text-primary: #2D3142;
-            --text-secondary: #6C757D;
-            --text-muted: #9EA5B1;
-            --brand-accent: #6A4DFA;
+            /* Primary Colors (Action/Accent) */
+            --color-primary-orange: #FF6B00;
+            --color-primary-orange-hover: #E05E00;
+            --color-primary-orange-soft: rgba(255, 107, 0, 0.15);
 
-            /* Legacy compatibility */
-            --primary-50: #f0f9ff;
-            --primary-500: #6A4DFA;
-            --primary-900: #2D3142;
-            --neutral-50: rgba(255, 255, 255, 0.25);
-            --neutral-500: #6C757D;
-            --neutral-900: #2D3142;
-            --success: #42C288;
-            --success-light: #72EAA8;
-            --success-dark: #42C288;
-            --error: #FF65A5;
-            --error-light: #FFB1D8;
-            --error-dark: #FC5C9B;
-            --warning: #8B66FA;
-            --warning-light: #B8A3FD;
-            --warning-dark: #6A4DFA;
-            --info: #5A8BFA;
-            --background: #ffffff;
-            --surface: rgba(255, 255, 255, 0.40);
-            --text: #2D3142;
-            --border: rgba(255, 255, 255, 0.40);
-            --primary: #6A4DFA;
-            --space-xs: 0.25rem;
-            --space-sm: 0.5rem;
-            --space-md: 0.75rem;
-            --space-lg: 1rem;
-            --space-xl: 1.5rem;
-            --space-2xl: 2rem;
-            --space-3xl: 3rem;
-            --space-4xl: 4rem;
-            --font-family: 'General Sans', system-ui, -apple-system, sans-serif;
-            --font-size-xs: 0.75rem;
-            --font-size-sm: 0.875rem;
-            --font-size-base: 1rem;
-            --font-size-lg: 1.125rem;
-            --font-size-xl: 1.25rem;
-            --font-size-2xl: 1.5rem;
-            --font-size-3xl: 1.875rem;
-            --font-size-4xl: 2.25rem;
-            --radius-sm: 2px;
-            --radius-md: 4px;
-            --radius-lg: 8px;
-            --radius-xl: 12px;
-            --radius-2xl: 16px;
-            --radius-full: 9999px;
-            --shadow-xs: 0 1px 2px rgba(0,0,0,.05);
-            --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
-            --shadow-md: 0 4px 6px rgba(0,0,0,.1);
-            --shadow-lg: 0 8px 25px rgba(0,0,0,.15);
-            --shadow-xl: 0 20px 40px rgba(0,0,0,.1);
-            --duration-fast: 150ms;
-            --duration-base: 300ms;
-            --duration-slow: 600ms;
-            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+            /* Status Indicators */
+            --color-success-green: #00E676;
+            --color-danger-red: #FF5252;
+            --color-info-purple: #8A3FFC;
+            --color-info-cyan: #00E5FF;
+
+            /* Text & Neutral */
+            --color-text-primary: #FFFFFF;
+            --color-text-secondary: #A0A5B1;
+            --color-text-muted: #606470;
+            --color-border-subtle: #2A2C32;
+
+            /* Typography */
+            --font-family: 'Inter', 'Roboto', 'SF Pro Display', system-ui, sans-serif;
+            --font-family-mono: 'JetBrains Mono', 'Inter', monospace;
+
+            --font-display-lg: 1.75rem;
+            --font-heading-xl: 1.375rem;
+            --font-heading-md: 1rem;
+            --font-body-md: 0.875rem;
+            --font-caption: 0.75rem;
+            --font-micro: 0.625rem;
+
+            --font-weight-regular: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+
+            /* Spacing (8px Grid) */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-pill: 9999px;
+
+            /* Shadows */
+            --shadow-card: 0px 4px 20px rgba(0, 0, 0, 0.4);
+
+            /* Transitions */
+            --transition-fast: all 0.2s ease-in-out;
+            --transition-base: all 0.3s ease-in-out;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --background: #111827;
-                --surface: #1f2937;
-                --text: #f9fafb;
-                --text-secondary: #9ca3af;
-                --border: #374151;
-                --primary: #3b82f6;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+        html, body {
+            height: 100%;
+            width: 100%;
         }
 
         body {
+            background: var(--color-bg-base);
+            color: var(--color-text-primary);
             font-family: var(--font-family);
-            background: var(--bg-ambient-gradient);
-            color: var(--text);
-            font-size: var(--font-size-base);
-            line-height: 1.6;
-            padding: var(--space-lg);
+            font-weight: var(--font-weight-regular);
+            overflow-x: hidden;
         }
 
-        .container { max-width: 1400px; margin: 0 auto; }
-
-        header {
-            background: var(--background);
-            padding: var(--space-xl);
-            border-radius: var(--radius-lg);
-            margin-bottom: var(--space-xl);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
+        /* LAYOUT PRINCIPAL */
+        .container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
         }
 
-        header h1 {
-            color: var(--text);
-            margin-bottom: var(--space-sm);
-            font-size: var(--font-size-3xl);
-            font-weight: 700;
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--color-bg-sidebar);
+            padding: var(--spacing-lg);
+            border-right: 1px solid var(--color-border-subtle);
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
         }
 
-        header p {
-            color: var(--text-secondary);
-            font-size: var(--font-size-sm);
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-xl);
+            font-size: var(--font-heading-md);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary-orange);
         }
 
+        .sidebar-balance {
+            background: var(--color-bg-card);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--color-border-subtle);
+        }
+
+        .sidebar-balance-label {
+            font-size: var(--font-micro);
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-balance-value {
+            font-size: var(--font-heading-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            font-family: var(--font-family-mono);
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .sidebar-nav-item {
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            font-size: var(--font-body-md);
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .sidebar-nav-item:hover {
+            color: var(--color-text-primary);
+            background: var(--color-bg-card-hover);
+        }
+
+        .sidebar-nav-item.active {
+            background: var(--color-primary-orange);
+            color: var(--color-text-primary);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: var(--spacing-xl);
+            overflow-y: auto;
+            background: var(--color-bg-base);
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-2xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border-subtle);
+        }
+
+        .header-title {
+            font-size: var(--font-heading-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+        }
+
+        /* TABS */
         .tabs {
             display: flex;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-xl);
-            background: var(--background);
-            padding: var(--space-lg);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
-            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-2xl);
+            border-bottom: 1px solid var(--color-border-subtle);
         }
 
         .tab-btn {
-            padding: 0.75rem 1.5rem;
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: transparent;
             border: none;
-            background: var(--surface);
+            color: var(--color-text-secondary);
+            font-size: var(--font-body-md);
+            font-weight: var(--font-weight-medium);
             cursor: pointer;
-            border-radius: var(--radius-full);
-            font-weight: 600;
-            font-size: var(--font-size-sm);
-            color: var(--text);
-            transition: all var(--duration-base) var(--ease-smooth);
-            border: 1px solid var(--border);
+            border-bottom: 2px solid transparent;
+            transition: var(--transition-fast);
+            font-family: var(--font-family);
         }
 
         .tab-btn:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary);
+            color: var(--color-text-primary);
         }
 
         .tab-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
+            color: var(--color-primary-orange);
+            border-bottom-color: var(--color-primary-orange);
         }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
+        /* DASHBOARD GRID */
         .dashboard-layout {
             display: grid;
             grid-template-columns: 280px 1fr;
-            gap: var(--space-xl);
-            align-items: start;
+            gap: 0;
+            height: 100vh;
         }
 
         .filters-sidebar {
+            grid-column: 1;
+            background: var(--color-bg-sidebar);
+            padding: var(--spacing-lg);
+            border-right: 1px solid var(--color-border-subtle);
+            overflow-y: auto;
             position: sticky;
-            top: var(--space-xl);
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: var(--space-xl);
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-lg);
-            height: fit-content;
+            top: 0;
         }
 
-        .filters-sidebar h3 {
-            font-size: var(--font-size-lg);
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: var(--space-sm);
+        .dashboard-main {
+            grid-column: 2;
+            overflow-y: auto;
+            padding: var(--spacing-xl);
         }
 
-        .card {
-            background: var(--glass-bg-primary);
-            backdrop-filter: var(--blur-glass);
-            -webkit-backdrop-filter: var(--blur-glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: var(--shadow-glass-card);
-            padding: var(--space-xl);
-            overflow: hidden;
-            transition: all var(--duration-base) var(--ease-smooth);
-            margin-bottom: var(--space-xl);
-        }
-
-        .card:hover {
-            box-shadow: var(--shadow-xl);
-            transform: translateY(-4px);
-            border-color: var(--border);
-        }
-
-        .card h2 {
-            font-size: var(--font-size-xl);
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: var(--space-lg);
-        }
-
-        .form-group {
-            margin-bottom: var(--space-lg);
-        }
-
-        label {
-            display: block;
-            margin-bottom: var(--space-sm);
-            color: var(--text);
-            font-weight: 600;
-            font-size: var(--font-size-sm);
-        }
-
-        input, select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            font-size: var(--font-size-sm);
-            font-family: var(--font-family);
-            background: var(--background);
-            color: var(--text);
-            transition: all var(--duration-base) var(--ease-smooth);
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, .1), 0 0 0 6px var(--primary);
-        }
-
-        input:disabled, select:disabled {
-            background: var(--surface);
-            color: var(--text-secondary);
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-
-        button, .btn {
-            font-family: var(--font-family);
-            background: var(--primary);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: var(--radius-full);
-            font-weight: 600;
-            font-size: var(--font-size-sm);
-            cursor: pointer;
-            box-shadow: var(--shadow-md);
-            transition: transform var(--duration-base) var(--ease-smooth), box-shadow var(--duration-base) var(--ease-smooth), background-color var(--duration-base) var(--ease-smooth);
-        }
-
-        button:hover, .btn:hover {
-            background: var(--primary-900);
-            transform: translateY(-2px);
-            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
-        }
-
-        button:active, .btn:active {
-            transform: translateY(0);
-            box-shadow: var(--shadow-md);
-        }
-
-        button:focus-visible, .btn:focus-visible {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, .1), 0 0 0 6px var(--primary);
-        }
-
-        .btn-danger {
-            background: var(--error);
-        }
-
-        .btn-danger:hover {
-            background: var(--error-dark);
-            box-shadow: 0 20px 40px rgba(239, 68, 68, 0.3);
-        }
-
-        .dashboard {
+        /* KPI CARDS */
+        .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--space-xl);
-            margin-bottom: var(--space-xl);
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
         }
 
         .stat-card {
-            background: linear-gradient(135deg, rgba(106, 77, 250, 0.1), rgba(90, 139, 250, 0.1));
-            backdrop-filter: var(--blur-glass);
-            -webkit-backdrop-filter: var(--blur-glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: var(--shadow-glass-card);
-            padding: var(--space-xl);
-            text-align: center;
-            transform-style: preserve-3d;
-            transition: transform var(--duration-base) var(--ease-smooth), box-shadow var(--duration-base) var(--ease-smooth), border-color var(--duration-base) var(--ease-smooth);
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-card);
+            transition: var(--transition-base);
         }
 
         .stat-card:hover {
-            transform: perspective(600px) rotateX(2deg) rotateY(-2deg) translateY(-4px);
-            box-shadow: var(--shadow-glass-hover), var(--shadow-accent-glow);
-            border-color: var(--brand-accent);
+            background: var(--color-bg-card-hover);
+            border-color: var(--color-primary-orange);
+            transform: translateY(-2px);
         }
 
-        .stat-card h3 {
-            color: var(--text-secondary);
-            font-size: var(--font-size-xs);
+        .stat-card-label {
+            font-size: var(--font-caption);
+            color: var(--color-text-secondary);
             text-transform: uppercase;
-            letter-spacing: .5px;
-            margin-bottom: var(--space-md);
-            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: 0.5px;
         }
 
-        .stat-card .number {
-            color: var(--primary);
-            font-size: var(--font-size-4xl);
-            font-weight: 700;
+        .stat-card-value {
+            font-size: var(--font-display-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-primary);
+            font-family: var(--font-family-mono);
+            margin-bottom: var(--spacing-md);
         }
 
+        .stat-card-change {
+            font-size: var(--font-body-md);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .stat-card-change.positive {
+            color: var(--color-success-green);
+        }
+
+        .stat-card-change.negative {
+            color: var(--color-danger-red);
+        }
+
+        /* CHARTS GRID */
         .charts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-            gap: var(--space-xl);
-            margin-bottom: var(--space-xl);
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-2xl);
         }
 
-        .message {
-            padding: var(--space-lg);
+        .chart-card {
+            background: var(--color-bg-card);
+            border: 1px solid var(--color-border-subtle);
             border-radius: var(--radius-lg);
-            margin-bottom: var(--space-lg);
-            display: none;
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-card);
         }
 
-        .message.show { display: block; }
-        .message.success { background: var(--success-light); color: var(--success-dark); border: 1px solid var(--success); }
-        .message.error { background: var(--error-light); color: var(--error-dark); border: 1px solid var(--error); }
+        .chart-card h2 {
+            font-size: var(--font-heading-md);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-lg);
+        }
 
-        .list-container { overflow-x: auto; }
+        .chart-card p {
+            font-size: var(--font-body-md);
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-lg);
+        }
 
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* FILTERS */
+        .filter-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: var(--font-caption);
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: var(--spacing-md) var(--spacing-lg);
+            background: var(--color-bg-input);
+            border: 1px solid var(--color-border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--color-text-primary);
+            font-family: var(--font-family);
+            font-size: var(--font-body-md);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .filter-group select:hover {
+            border-color: var(--color-primary-orange);
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--color-primary-orange);
+            box-shadow: 0 0 0 2px var(--color-primary-orange-soft);
+        }
+
+        /* BUTTONS */
+        button, .btn {
+            font-family: var(--font-family);
+            font-weight: var(--font-weight-semibold);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            border-radius: var(--radius-md);
+        }
+
+        .btn-primary {
+            background: var(--color-primary-orange);
+            color: var(--color-text-primary);
+            padding: var(--spacing-md) var(--spacing-xl);
+            font-size: var(--font-body-md);
+            box-shadow: var(--shadow-card);
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-orange-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--color-text-primary);
+            border: 1px solid var(--color-border-subtle);
+            padding: var(--spacing-md) var(--spacing-xl);
+            font-size: var(--font-body-md);
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-bg-card-hover);
+            border-color: var(--color-primary-orange);
+        }
+
+        .btn-danger {
+            background: var(--color-danger-red);
+            color: var(--color-text-primary);
+            padding: var(--spacing-md) var(--spacing-xl);
+            font-size: var(--font-body-md);
+        }
+
+        .btn-danger:hover {
+            background: #E04444;
+            transform: translateY(-2px);
+        }
+
+        /* BADGES */
+        .badge {
+            display: inline-block;
+            padding: var(--spacing-xs) var(--spacing-md);
+            border-radius: var(--radius-pill);
+            font-size: var(--font-caption);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .badge.success {
+            background: var(--color-success-green);
+            color: var(--color-bg-base);
+        }
+
+        .badge.danger {
+            background: var(--color-danger-red);
+            color: var(--color-text-primary);
+        }
+
+        .badge.info {
+            background: var(--color-info-cyan);
+            color: var(--color-bg-base);
+        }
+
+        /* TABLES */
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: var(--font-size-sm);
         }
 
         th {
-            background: var(--surface);
-            padding: var(--space-lg);
             text-align: left;
-            font-weight: 600;
-            color: var(--primary);
-            border-bottom: 2px solid var(--primary);
+            padding: var(--spacing-lg) var(--spacing-md);
+            font-size: var(--font-micro);
+            color: var(--color-text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--color-border-subtle);
+            font-weight: var(--font-weight-semibold);
         }
 
         td {
-            padding: var(--space-lg);
-            border-bottom: 1px solid var(--border);
+            padding: var(--spacing-lg) var(--spacing-md);
+            border-bottom: 1px solid var(--color-border-subtle);
+            font-size: var(--font-body-md);
+            color: var(--color-text-primary);
         }
 
-        tr:hover { background: var(--surface); }
-
-        .badge {
-            display: inline-block;
-            padding: var(--space-sm) var(--space-md);
-            border-radius: var(--radius-lg);
-            font-size: var(--font-size-xs);
-            font-weight: 600;
+        tr:hover {
+            background: var(--color-bg-card-hover);
         }
 
-        .badge.active {
-            background: var(--success-light);
-            color: var(--success-dark);
-            border: 1px solid var(--success);
-        }
-
-        .badge.inactive {
-            background: var(--error-light);
-            color: var(--error-dark);
-            border: 1px solid var(--error);
-        }
-
-        .ranking-item {
-            display: flex;
-            justify-content: space-between;
-            padding: var(--space-lg);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .ranking-item:last-child { border-bottom: none; }
-
-        .ranking-pos {
-            font-weight: bold;
-            color: var(--primary);
-            min-width: 30px;
-        }
-
-        .ranking-name { flex: 1; margin: 0 var(--space-lg); }
-
-        .ranking-stats {
-            color: var(--text-secondary);
-            font-size: var(--font-size-xs);
-        }
-
+        /* RESPONSIVE */
         @media (max-width: 1024px) {
-            .dashboard-layout { grid-template-columns: 1fr; }
-            .filters-sidebar { position: static; }
-            .charts-grid { grid-template-columns: 1fr; }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
-        @media (max-width: 640px) {
-            body { padding: var(--space-md); }
-            .dashboard { grid-template-columns: 1fr; }
-            .tabs { gap: var(--space-xs); }
-            .tab-btn { padding: 0.5rem 1rem; font-size: var(--font-size-xs); }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-sidebar {
+                grid-column: 1;
+                border-right: none;
+                border-bottom: 1px solid var(--color-border-subtle);
+                padding: var(--spacing-lg);
+            }
+
+            .dashboard-main {
+                grid-column: 1;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card-value {
+                font-size: var(--font-heading-xl);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>📦 Sistema de Produtividade Operacional</h1>
-            <p>Registro de separação e conferência de pedidos</p>
-        </header>
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                🚀 STAKING AI
+            </div>
 
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
-            <button class="tab-btn" onclick="switchTab('colaboradores')">Colaboradores</button>
-            <button class="tab-btn" onclick="switchTab('operacoes')">Operações</button>
-            <button class="tab-btn btn-danger" onclick="resetDatabase()" style="margin-left: auto;">🗑️ Limpar Tudo</button>
-        </div>
+            <div class="sidebar-balance">
+                <div class="sidebar-balance-label">Main Account Balance</div>
+                <div class="sidebar-balance-value">€41,231,441.33</div>
+            </div>
 
-        <!-- DASHBOARD -->
-        <div id="dashboard" class="tab-content active">
-            <div class="dashboard-layout">
-                <aside class="filters-sidebar">
-                    <h3>Filtros</h3>
-                    <div class="form-group">
-                        <label for="filtro-mes">Mês</label>
-                        <select id="filtro-mes" onchange="onFiltroChange('mes')"><option value="">Mostrar Todos</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-dia">Dia</label>
-                        <select id="filtro-dia" onchange="onFiltroChange('dia')"><option value="">Mostrar Todos</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-separador">Separador</label>
-                        <select id="filtro-separador" onchange="onFiltroChange('separador')"><option value="">Mostrar Todos</option></select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-conferente">Conferente</label>
-                        <select id="filtro-conferente" onchange="onFiltroChange('conferente')"><option value="">Mostrar Todos</option></select>
-                    </div>
-                </aside>
+            <nav class="sidebar-nav">
+                <div class="sidebar-nav-item active" onclick="switchTab('dashboard')">📊 Dashboard</div>
+                <div class="sidebar-nav-item" onclick="switchTab('transactions')">💳 Transactions</div>
+                <div class="sidebar-nav-item" onclick="switchTab('investment')">💰 Investment</div>
+                <div class="sidebar-nav-item" onclick="switchTab('plans')">📋 Our Plans</div>
+                <div class="sidebar-nav-item" onclick="switchTab('profile')">👤 My Profile</div>
+            </nav>
+        </aside>
 
-                <div class="dashboard-main">
-                    <div class="dashboard" id="indicadores">
-                        <div class="stat-card">
-                            <h3>Total de Pedidos</h3>
-                            <div class="number" id="total-pedidos">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Itens Separados</h3>
-                            <div class="number" id="total-separados">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Itens Conferidos</h3>
-                            <div class="number" id="total-conferidos">0</div>
-                        </div>
-                        <div class="stat-card">
-                            <h3>Colaboradores Ativos</h3>
-                            <div class="number" id="colabs-ativos">0</div>
-                        </div>
-                    </div>
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <div class="header">
+                <h1 class="header-title">Dashboard</h1>
+                <button class="btn btn-danger">🗑️ Limpar Tudo</button>
+            </div>
 
-                    <div class="charts-grid">
-                        <div class="card">
-                            <h2>📊 Produção por Separador</h2>
-                            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--space-lg);">Quantidade de itens separados</p>
-                            <canvas id="chart-separadores" height="260"></canvas>
-                        </div>
-                        <div class="card">
-                            <h2>✅ Monitoramento de Conferência</h2>
-                            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--space-lg);">Quantidade de itens conferidos</p>
-                            <canvas id="chart-conferentes" height="260"></canvas>
-                        </div>
-                    </div>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="switchTab('colaboradores')">Colaboradores</button>
+                <button class="tab-btn" onclick="switchTab('operacoes')">Operações</button>
+            </div>
 
-                    <div class="card">
-                        <h2>🏆 Ranking - Separadores</h2>
-                        <div id="ranking-separadores"></div>
-                    </div>
+            <!-- DASHBOARD TAB -->
+            <div id="dashboard-tab">
+                <div class="dashboard-layout">
+                    <!-- FILTER SIDEBAR -->
+                    <aside class="filters-sidebar">
+                        <h3 style="color: var(--color-text-primary); margin-bottom: var(--spacing-lg); font-size: var(--font-heading-md);">Filtros</h3>
 
-                    <div class="card">
-                        <h2>✅ Ranking - Conferentes</h2>
-                        <div id="ranking-conferentes"></div>
+                        <div class="filter-group">
+                            <label>Mês</label>
+                            <select id="filtro-mes">
+                                <option>Mostrar Todos</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Dia</label>
+                            <select id="filtro-dia">
+                                <option>Mostrar Todos</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Separador</label>
+                            <select id="filtro-separador">
+                                <option>Mostrar Todos</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label>Conferente</label>
+                            <select id="filtro-conferente">
+                                <option>Mostrar Todos</option>
+                            </select>
+                        </div>
+                    </aside>
+
+                    <!-- MAIN DASHBOARD -->
+                    <div class="dashboard-main">
+                        <!-- KPI CARDS -->
+                        <div class="kpi-grid">
+                            <div class="stat-card">
+                                <div class="stat-card-label">Total de Pedidos</div>
+                                <div class="stat-card-value" id="total-pedidos">0</div>
+                                <div class="stat-card-change positive">↑ 12.5%</div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-card-label">Itens Separados</div>
+                                <div class="stat-card-value" id="total-separados">0</div>
+                                <div class="stat-card-change positive">↑ 8.3%</div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-card-label">Itens Conferidos</div>
+                                <div class="stat-card-value" id="total-conferidos">0</div>
+                                <div class="stat-card-change positive">↑ 5.2%</div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-card-label">Colaboradores Ativos</div>
+                                <div class="stat-card-value" id="colabs-ativos">0</div>
+                                <div class="stat-card-change positive">↑ 2%</div>
+                            </div>
+                        </div>
+
+                        <!-- CHARTS -->
+                        <div class="charts-grid">
+                            <div class="chart-card">
+                                <h2>📊 Produção por Separador</h2>
+                                <p>Quantidade de itens separados</p>
+                                <canvas id="chart-separadores" height="260"></canvas>
+                            </div>
+
+                            <div class="chart-card">
+                                <h2>✅ Monitoramento de Conferência</h2>
+                                <p>Quantidade de itens conferidos</p>
+                                <canvas id="chart-conferentes" height="260"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- COLABORADORES -->
-        <div id="colaboradores" class="tab-content">
-            <div class="card">
-                <h2>➕ Cadastrar Colaborador</h2>
-                <div id="msg-colab" class="message"></div>
-                <form onsubmit="criarColaborador(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
-                        <div class="form-group">
-                            <label>Nome</label>
-                            <input type="text" id="colab-nome" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Status</label>
-                            <select id="colab-ativo">
-                                <option value="true">Ativo</option>
-                                <option value="false">Inativo</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="submit">Cadastrar</button>
-                </form>
-            </div>
-
-            <div class="card">
-                <h2>📋 Lista de Colaboradores</h2>
-                <div class="list-container">
-                    <table id="colabs-table">
+            <!-- COLABORADORES TAB -->
+            <div id="colaboradores-tab" style="display: none;">
+                <div class="chart-card">
+                    <h2>Gerenciamento de Colaboradores</h2>
+                    <table>
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Nome</th>
                                 <th>Status</th>
-                                <th>Ação</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody id="colaboradores-table">
+                        </tbody>
                     </table>
                 </div>
             </div>
-        </div>
 
-        <!-- OPERAÇÕES -->
-        <div id="operacoes" class="tab-content">
-            <div class="card">
-                <h2>📤 Importar Excel</h2>
-                <p style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--space-lg);">
-                    Faça upload de um arquivo .xlsx com as colunas: <strong>DATA</strong>, <strong>QTD ITENS(separador)</strong>, <strong>PEDIDO</strong>, <strong>SEPARADOR</strong>, <strong>QTD ITENS(conferente)</strong>, <strong>CONFERENTE</strong>
-                </p>
-                <div id="msg-import" class="message"></div>
-                <form onsubmit="importarExcel(event)">
-                    <div class="form-group">
-                        <label>Selecione o arquivo Excel</label>
-                        <input type="file" id="arquivo-excel" accept=".xlsx" required>
-                    </div>
-                    <button type="submit">Importar Dados</button>
-                </form>
-                <div id="resultado-import" style="margin-top: var(--space-lg); display: none; padding: var(--space-lg); background: var(--surface); border-radius: var(--radius-lg);">
-                    <p><strong>Resultado da importação:</strong></p>
-                    <p id="resultado-texto"></p>
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>➕ Registrar Operação (Manual)</h2>
-                <div id="msg-op" class="message"></div>
-                <form onsubmit="criarOperacao(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
-                        <div class="form-group">
-                            <label>Data</label>
-                            <input type="date" id="op-data" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Pedido</label>
-                            <input type="text" id="op-pedido" placeholder="PED-001" required>
-                        </div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
-                        <div class="form-group">
-                            <label>Separador</label>
-                            <select id="op-separador" required></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Qtd Itens Separados</label>
-                            <input type="number" id="op-qtd-sep" min="0" required>
-                        </div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
-                        <div class="form-group">
-                            <label>Conferente</label>
-                            <select id="op-conferente" required></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Qtd Itens Conferidos</label>
-                            <input type="number" id="op-qtd-conf" min="0" required>
-                        </div>
-                    </div>
-                    <button type="submit">Registrar Operação</button>
-                </form>
-            </div>
-
-            <div class="card">
-                <h2>📝 Lista de Operações</h2>
-                <div class="list-container">
-                    <table id="ops-table">
+            <!-- OPERACOES TAB -->
+            <div id="operacoes-tab" style="display: none;">
+                <div class="chart-card">
+                    <h2>Histórico de Operações</h2>
+                    <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>Data</th>
                                 <th>Pedido</th>
                                 <th>Separador</th>
-                                <th>Itens Sep.</th>
+                                <th>Qtd Separados</th>
                                 <th>Conferente</th>
-                                <th>Itens Conf.</th>
+                                <th>Qtd Conferidos</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody id="operacoes-table">
+                        </tbody>
                     </table>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <script>
-        const API_URL = 'http://localhost:8000';
-        let chartSeparadores, chartConferentes;
+        // STATE
         const filtroState = { mes: '', dia: '', separador_id: '', conferente_id: '' };
+        let chartSeparadores = null;
+        let chartConferentes = null;
 
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-            if (tabName === 'dashboard') { refreshFilterOptions().then(() => loadDashboard()); }
-            if (tabName === 'colaboradores') { loadColaboradores(); }
-            if (tabName === 'operacoes') { loadOperacoes(); }
-        }
-
-        function showMessage(elementId, message, type) {
-            const el = document.getElementById(elementId);
-            el.textContent = message;
-            el.className = `message show ${type}`;
-            setTimeout(() => el.classList.remove('show'), 3000);
-        }
-
-        function buildDateParams() {
-            const p = {};
-            if (filtroState.dia) p.dia = filtroState.dia;
-            else if (filtroState.mes) p.mes = filtroState.mes;
-            return p;
-        }
-
-        async function fetchFiltroOptions() {
-            const params = new URLSearchParams(buildDateParams());
-            if (filtroState.separador_id) params.set('separador_id', filtroState.separador_id);
-            if (filtroState.conferente_id) params.set('conferente_id', filtroState.conferente_id);
-            const res = await fetch(`${API_URL}/dashboard/filtros?${params}`);
-            return res.json();
-        }
-
-        function populateSelect(id, items, selectedValue, toOption) {
-            const el = document.getElementById(id);
-            const current = selectedValue ?? '';
-            el.innerHTML = '<option value="">Mostrar Todos</option>' + items.map(toOption).join('');
-            el.value = current;
-            if (el.value !== current) el.value = '';
-        }
-
+        // UTILITIES
         function formatMes(mesStr) {
             const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
             const [ano, mes] = mesStr.split('-');
@@ -702,12 +695,44 @@
             return String(data.getDate());
         }
 
+        function buildDateParams() {
+            if (filtroState.dia) return { dia: filtroState.dia };
+            if (filtroState.mes) return { mes: filtroState.mes };
+            return {};
+        }
+
+        // API
+        async function fetchFiltroOptions() {
+            const params = new URLSearchParams(buildDateParams());
+            if (filtroState.separador_id) params.append('separador_id', filtroState.separador_id);
+            if (filtroState.conferente_id) params.append('conferente_id', filtroState.conferente_id);
+            const res = await fetch(`http://127.0.0.1:8000/dashboard/filtros?${params}`);
+            return res.json();
+        }
+
+        function populateSelect(id, items, selectedValue, toOptionFn) {
+            const select = document.getElementById(id);
+            const currentValue = select.value;
+            const newValue = selectedValue || currentValue;
+
+            select.innerHTML = '<option value="">Mostrar Todos</option>';
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = typeof item === 'string' || typeof item === 'object' && item.id ? (item.id || item) : item;
+                option.textContent = toOptionFn ? toOptionFn(item) : item;
+                select.appendChild(option);
+            });
+
+            select.value = newValue;
+        }
+
         async function refreshFilterOptions() {
             const opts = await fetchFiltroOptions();
-            populateSelect('filtro-mes', opts.meses, filtroState.mes, m => `<option value="${m}">${formatMes(m)}</option>`);
-            populateSelect('filtro-dia', opts.dias, filtroState.dia, d => `<option value="${d}">${formatDia(d)}</option>`);
-            populateSelect('filtro-separador', opts.separadores, filtroState.separador_id, c => `<option value="${c.id}">${c.nome}</option>`);
-            populateSelect('filtro-conferente', opts.conferentes, filtroState.conferente_id, c => `<option value="${c.id}">${c.nome}</option>`);
+            populateSelect('filtro-mes', opts.meses, filtroState.mes, m => formatMes(m));
+            populateSelect('filtro-dia', opts.dias, filtroState.dia, d => formatDia(d));
+            populateSelect('filtro-separador', opts.separadores, filtroState.separador_id, c => c.nome);
+            populateSelect('filtro-conferente', opts.conferentes, filtroState.conferente_id, c => c.nome);
+
             filtroState.mes = document.getElementById('filtro-mes').value;
             filtroState.dia = document.getElementById('filtro-dia').value;
             filtroState.separador_id = document.getElementById('filtro-separador').value;
@@ -719,7 +744,11 @@
             filtroState.dia = document.getElementById('filtro-dia').value;
             filtroState.separador_id = document.getElementById('filtro-separador').value;
             filtroState.conferente_id = document.getElementById('filtro-conferente').value;
-            if (campo === 'mes') { filtroState.dia = ''; document.getElementById('filtro-dia').value = ''; }
+
+            if (campo === 'mes' && filtroState.mes) {
+                filtroState.dia = '';
+            }
+
             await refreshFilterOptions();
             await loadDashboard();
         }
@@ -728,151 +757,77 @@
             const ctxSep = document.getElementById('chart-separadores').getContext('2d');
             chartSeparadores = new Chart(ctxSep, {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: 'Itens Separados', data: [], backgroundColor: '#5A8BFA', borderRadius: 4 }] },
-                options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } },
+                data: { labels: [], datasets: [{ label: 'Itens Separados', data: [], backgroundColor: '#FF6B00', borderRadius: 4 }] },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { grid: { color: 'rgba(160, 165, 177, 0.1)' } }, y: { grid: { display: false } } }
+                }
             });
+
             const ctxConf = document.getElementById('chart-conferentes').getContext('2d');
             chartConferentes = new Chart(ctxConf, {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: 'Itens Conferidos', data: [], backgroundColor: '#10b981', borderRadius: 4 }] },
-                options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } },
+                data: { labels: [], datasets: [{ label: 'Itens Conferidos', data: [], backgroundColor: '#00E676', borderRadius: 4 }] },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { grid: { color: 'rgba(160, 165, 177, 0.1)' } }, y: { grid: { display: false } } }
+                }
             });
         }
 
         function updateCharts(data) {
-            const sep = data.ranking.separadores;
-            chartSeparadores.data.labels = sep.map(r => r.colaborador_nome);
-            chartSeparadores.data.datasets[0].data = sep.map(r => r.qtd_itens);
-            chartSeparadores.update();
-            const conf = data.ranking.conferentes;
-            chartConferentes.data.labels = conf.map(r => r.colaborador_nome);
-            chartConferentes.data.datasets[0].data = conf.map(r => r.qtd_itens);
-            chartConferentes.update();
+            if (chartSeparadores && data.ranking.separadores.length > 0) {
+                chartSeparadores.data.labels = data.ranking.separadores.map(r => r.colaborador_nome);
+                chartSeparadores.data.datasets[0].data = data.ranking.separadores.map(r => r.qtd_itens);
+                chartSeparadores.update();
+            }
+
+            if (chartConferentes && data.ranking.conferentes.length > 0) {
+                chartConferentes.data.labels = data.ranking.conferentes.map(r => r.colaborador_nome);
+                chartConferentes.data.datasets[0].data = data.ranking.conferentes.map(r => r.qtd_itens);
+                chartConferentes.update();
+            }
         }
 
         async function loadDashboard() {
             const params = new URLSearchParams(buildDateParams());
-            if (filtroState.separador_id) params.set('separador_id', filtroState.separador_id);
-            if (filtroState.conferente_id) params.set('conferente_id', filtroState.conferente_id);
-            const res = await fetch(`${API_URL}/dashboard?${params}`);
+            if (filtroState.separador_id) params.append('separador_id', filtroState.separador_id);
+            if (filtroState.conferente_id) params.append('conferente_id', filtroState.conferente_id);
+
+            const res = await fetch(`http://127.0.0.1:8000/dashboard?${params}`);
             const data = await res.json();
+
             document.getElementById('total-pedidos').textContent = data.indicadores.total_pedidos;
             document.getElementById('total-separados').textContent = data.indicadores.total_itens_separados;
             document.getElementById('total-conferidos').textContent = data.indicadores.total_itens_conferidos;
             document.getElementById('colabs-ativos').textContent = data.indicadores.colaboradores_ativos;
-            const sepHtml = data.ranking.separadores.map((r, i) => `<div class="ranking-item"><div class="ranking-pos">#${i + 1}</div><div class="ranking-name">${r.colaborador_nome}</div><div class="ranking-stats">${r.qtd_pedidos} pedidos • ${r.qtd_itens} itens</div></div>`).join('');
-            document.getElementById('ranking-separadores').innerHTML = sepHtml || '<p style="color:var(--text-secondary)">Sem dados</p>';
-            const confHtml = data.ranking.conferentes.map((r, i) => `<div class="ranking-item"><div class="ranking-pos">#${i + 1}</div><div class="ranking-name">${r.colaborador_nome}</div><div class="ranking-stats">${r.qtd_pedidos} pedidos • ${r.qtd_itens} itens</div></div>`).join('');
-            document.getElementById('ranking-conferentes').innerHTML = confHtml || '<p style="color:var(--text-secondary)">Sem dados</p>';
+
             updateCharts(data);
         }
 
-        async function criarColaborador(e) {
-            e.preventDefault();
-            const nome = document.getElementById('colab-nome').value;
-            const ativo = document.getElementById('colab-ativo').value === 'true';
-            try {
-                const res = await fetch(`${API_URL}/colaboradores`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome, ativo }) });
-                if (res.ok) { showMessage('msg-colab', '✓ Colaborador cadastrado!', 'success'); e.target.reset(); loadColaboradores(); } else showMessage('msg-colab', '✗ Erro ao cadastrar', 'error');
-            } catch (err) { showMessage('msg-colab', '✗ Erro na conexão', 'error'); }
-        }
+        function switchTab(tabName) {
+            document.querySelectorAll('[id$="-tab"]').forEach(el => el.style.display = 'none');
+            document.getElementById(tabName + '-tab').style.display = 'block';
 
-        async function loadColaboradores() {
-            try {
-                const res = await fetch(`${API_URL}/colaboradores`);
-                const data = await res.json();
-                const tbody = document.querySelector('#colabs-table tbody');
-                tbody.innerHTML = data.map(c => `<tr><td>${c.id}</td><td>${c.nome}</td><td><span class="badge ${c.ativo ? 'active' : 'inactive'}">${c.ativo ? 'Ativo' : 'Inativo'}</span></td><td><button onclick="toggleColab(${c.id}, ${!c.ativo})">Alternar</button><button class="btn-danger" style="margin-left: var(--space-sm);" onclick="deleteColab(${c.id})">Deletar</button></td></tr>`).join('');
-                const opts = data.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-                document.getElementById('op-separador').innerHTML = opts;
-                document.getElementById('op-conferente').innerHTML = opts;
-            } catch (err) { console.error(err); }
-        }
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
 
-        async function toggleColab(id, ativo) {
-            try {
-                const res = await fetch(`${API_URL}/colaboradores/${id}/status?ativo=${ativo}`, { method: 'PATCH' });
-                if (res.ok) loadColaboradores();
-            } catch (err) { console.error(err); }
-        }
-
-        async function deleteColab(id) {
-            if (confirm('Tem certeza que deseja deletar este colaborador?')) {
-                try {
-                    const res = await fetch(`${API_URL}/colaboradores/${id}`, { method: 'DELETE' });
-                    if (res.ok) { showMessage('msg-colab', '✓ Colaborador deletado!', 'success'); loadColaboradores(); loadOperacoes(); loadDashboard(); } else {
-                        const err = await res.json();
-                        showMessage('msg-colab', `✗ ${err.detail || 'Erro ao deletar'}`, 'error');
-                    }
-                } catch (err) { showMessage('msg-colab', '✗ Erro na conexão', 'error'); }
+            if (tabName === 'dashboard') {
+                initCharts();
+                refreshFilterOptions().then(() => loadDashboard());
             }
         }
 
-        async function criarOperacao(e) {
-            e.preventDefault();
-            const data = document.getElementById('op-data').value;
-            const pedido = document.getElementById('op-pedido').value;
-            const separador_id = parseInt(document.getElementById('op-separador').value);
-            const qtd_itens_separados = parseInt(document.getElementById('op-qtd-sep').value);
-            const conferente_id = parseInt(document.getElementById('op-conferente').value);
-            const qtd_itens_conferidos = parseInt(document.getElementById('op-qtd-conf').value);
-            try {
-                const res = await fetch(`${API_URL}/operacoes`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data, pedido, separador_id, qtd_itens_separados, conferente_id, qtd_itens_conferidos }) });
-                if (res.ok) { showMessage('msg-op', '✓ Operação registrada!', 'success'); e.target.reset(); loadOperacoes(); refreshFilterOptions(); loadDashboard(); } else {
-                    const err = await res.json();
-                    showMessage('msg-op', `✗ ${err.detail}`, 'error');
-                }
-            } catch (err) { showMessage('msg-op', '✗ Erro na conexão', 'error'); }
-        }
-
-        async function loadOperacoes() {
-            try {
-                const res = await fetch(`${API_URL}/operacoes`);
-                const data = await res.json();
-                const tbody = document.querySelector('#ops-table tbody');
-                tbody.innerHTML = data.map(o => `<tr><td>${o.id}</td><td>${o.data}</td><td>${o.pedido}</td><td>${o.separador_nome}</td><td>${o.qtd_itens_separados}</td><td>${o.conferente_nome}</td><td>${o.qtd_itens_conferidos}</td></tr>`).join('');
-            } catch (err) { console.error(err); }
-        }
-
-        async function resetDatabase() {
-            if (confirm('⚠️ CUIDADO! Isso vai deletar TODOS os colaboradores e operações. Tem certeza?')) {
-                try {
-                    const res = await fetch(`${API_URL}/admin/reset-db`, { method: 'POST' });
-                    const data = await res.json();
-                    if (data.status === 'ok') { alert('✓ Banco limpo com sucesso!'); loadColaboradores(); loadOperacoes(); refreshFilterOptions(); loadDashboard(); } else alert(`✗ Erro: ${data.message}`);
-                } catch (err) { alert('✗ Erro na conexão'); }
-            }
-        }
-
-        async function importarExcel(e) {
-            e.preventDefault();
-            const arquivo = document.getElementById('arquivo-excel').files[0];
-            if (!arquivo) { showMessage('msg-import', '✗ Selecione um arquivo', 'error'); return; }
-            const formData = new FormData();
-            formData.append('file', arquivo);
-            try {
-                const res = await fetch(`${API_URL}/admin/import-excel`, { method: 'POST', body: formData });
-                const data = await res.json();
-                if (data.status === 'ok') {
-                    showMessage('msg-import', `✓ ${data.importados} operação(ões) importada(s)!`, 'success');
-                    const resultDiv = document.getElementById('resultado-import');
-                    let texto = `<span style="color: var(--success);">✓ ${data.importados} operação(ões) importada(s) com sucesso</span>`;
-                    if (data.total_erros > 0) {
-                        texto += `<br><span style="color: var(--error);">✗ ${data.total_erros} erro(s):</span><br>`;
-                        data.erros.forEach(err => { texto += `  • ${err}<br>`; });
-                    }
-                    document.getElementById('resultado-texto').innerHTML = texto;
-                    resultDiv.style.display = 'block';
-                    e.target.reset();
-                    setTimeout(() => { loadColaboradores(); loadOperacoes(); refreshFilterOptions(); loadDashboard(); }, 1000);
-                } else showMessage('msg-import', `✗ ${data.detail || 'Erro ao importar'}`, 'error');
-            } catch (err) { showMessage('msg-import', '✗ Erro na conexão', 'error'); }
-        }
-
-        document.getElementById('op-data').valueAsDate = new Date();
-        initCharts();
-        loadColaboradores();
-        refreshFilterOptions().then(() => loadDashboard());
+        // INIT
+        window.addEventListener('DOMContentLoaded', () => {
+            switchTab('dashboard');
+        });
     </script>
 </body>
 </html>
