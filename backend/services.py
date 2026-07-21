@@ -308,8 +308,16 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
                 erros.append(f"Linha {idx}: Dados incompletos")
                 continue
 
-            if not qtd_sep or not qtd_conf:
-                erros.append(f"Linha {idx}: Quantidades inválidas")
+            # Converter quantidades para int (ignorar se for fórmula ou inválido)
+            try:
+                qtd_sep = int(float(str(qtd_sep).replace("=", ""))) if qtd_sep else 0
+                qtd_conf = int(float(str(qtd_conf).replace("=", ""))) if qtd_conf else 0
+            except (ValueError, TypeError):
+                erros.append(f"Linha {idx}: Quantidades inválidas (não são números)")
+                continue
+
+            if qtd_sep <= 0 or qtd_conf <= 0:
+                erros.append(f"Linha {idx}: Quantidades devem ser maiores que 0")
                 continue
 
             # Buscar/criar colaboradores
@@ -334,9 +342,9 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
                 data=data,
                 pedido=str(pedido).strip(),
                 separador_id=separador.id,
-                qtd_itens_separados=int(qtd_sep),
+                qtd_itens_separados=qtd_sep,
                 conferente_id=conferente.id,
-                qtd_itens_conferidos=int(qtd_conf),
+                qtd_itens_conferidos=qtd_conf,
             )
             db.add(operacao)
             importados += 1
