@@ -236,6 +236,13 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, .1), 0 0 0 6px var(--primary);
         }
 
+        input:disabled, select:disabled {
+            background: var(--surface);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
         button, .btn {
             font-family: var(--font-family);
             background: var(--primary);
@@ -345,8 +352,8 @@
             padding: var(--space-lg);
             text-align: left;
             font-weight: 600;
-            color: var(--text);
-            border-bottom: 2px solid var(--border);
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
         }
 
         td {
@@ -367,11 +374,13 @@
         .badge.active {
             background: var(--success-light);
             color: var(--success-dark);
+            border: 1px solid var(--success);
         }
 
         .badge.inactive {
             background: var(--error-light);
             color: var(--error-dark);
+            border: 1px solid var(--error);
         }
 
         .ranking-item {
@@ -469,11 +478,13 @@
 
                     <div class="charts-grid">
                         <div class="card">
-                            <h2>📊 Produção por Separador (Itens)</h2>
+                            <h2>📊 Produção por Separador</h2>
+                            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--space-lg);">Quantidade de itens separados</p>
                             <canvas id="chart-separadores" height="260"></canvas>
                         </div>
                         <div class="card">
-                            <h2>✅ Produção por Conferente (Itens)</h2>
+                            <h2>✅ Monitoramento de Conferência</h2>
+                            <p style="font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--space-lg);">Quantidade de itens conferidos</p>
                             <canvas id="chart-conferentes" height="260"></canvas>
                         </div>
                     </div>
@@ -658,10 +669,21 @@
             if (el.value !== current) el.value = '';
         }
 
+        function formatMes(mesStr) {
+            const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const [ano, mes] = mesStr.split('-');
+            return `${meses[parseInt(mes) - 1]} de ${ano}`;
+        }
+
+        function formatDia(dataStr) {
+            const data = new Date(dataStr + 'T00:00:00');
+            return String(data.getDate()).padStart(2, '0');
+        }
+
         async function refreshFilterOptions() {
             const opts = await fetchFiltroOptions();
-            populateSelect('filtro-mes', opts.meses, filtroState.mes, m => `<option value="${m}">${m}</option>`);
-            populateSelect('filtro-dia', opts.dias, filtroState.dia, d => `<option value="${d}">${d}</option>`);
+            populateSelect('filtro-mes', opts.meses, filtroState.mes, m => `<option value="${m}">${formatMes(m)}</option>`);
+            populateSelect('filtro-dia', opts.dias, filtroState.dia, d => `<option value="${d}">${formatDia(d)}</option>`);
             populateSelect('filtro-separador', opts.separadores, filtroState.separador_id, c => `<option value="${c.id}">${c.nome}</option>`);
             populateSelect('filtro-conferente', opts.conferentes, filtroState.conferente_id, c => `<option value="${c.id}">${c.nome}</option>`);
             filtroState.mes = document.getElementById('filtro-mes').value;
