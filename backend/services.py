@@ -313,14 +313,9 @@ def _obter_dias_disponiveis(
     rows = query.all()
     if not rows:
         return []
-    dias_set = set(r[0].day for r in rows)
-    dias_ordenados = sorted(dias_set)
-    primeiro_ano = rows[0][0].year
-    mes_com_31_dias = datetime.strptime(f"{primeiro_ano}-01-01", "%Y-%m-%d").date()
-    resultado = []
-    for d in dias_ordenados:
-        resultado.append(mes_com_31_dias.replace(day=d))
-    return resultado
+    # Retornar as datas completas e ordenadas (não apenas o dia)
+    datas_set = {r[0] for r in rows if r[0] is not None}
+    return sorted(list(datas_set))
 
 
 def _obter_separadores_disponiveis(
