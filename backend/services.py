@@ -391,6 +391,8 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
     Espera: [{"DATA": date, "SEPARADOR": str, "QTD ITENS(separador)": int,
               "PEDIDÉ": str, "CONFERENTE": str, "QTD ITENS(conferente)": int}, ...]
     """
+    from datetime import datetime
+
     importados = 0
     erros = []
 
@@ -398,6 +400,9 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
         try:
             # Normalizar nomes de colunas (aceita PEDIDO ou PEDIDÉ)
             data = row.get("DATA")
+            # Converter datetime para date se necessário (openpyxl retorna datetime)
+            if isinstance(data, datetime):
+                data = data.date()
             pedido = row.get("PEDIDO") or row.get("PEDIDÉ")
             separador_nome = row.get("SEPARADOR", "").strip()
             qtd_sep = row.get("QTD ITENS(separador)")
