@@ -438,17 +438,34 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
                 db.add(conferente)
                 db.flush()
 
-            # Criar operação
-            operacao = Operacao(
-                data=data,
-                pedido=str(pedido).strip(),
-                separador_id=separador.id,
-                qtd_itens_separados=qtd_sep,
-                conferente_id=conferente.id,
-                qtd_itens_conferidos=qtd_conf,
-            )
-            db.add(operacao)
-            importados += 1
+            # Verificar se operação já existe (evitar duplicatas)
+            operacao_existente = db.query(Operacao).filter(
+                Operacao.data == data,
+                Operacao.pedido == str(pedido).strip(),
+                Operacao.separador_id == separador.id,
+                Operacao.conferente_id == conferente.id,
+            ).first()
+
+            if operacao_existente:
+                # Atualizar quantidades se houver diferença
+                if (operacao_existente.qtd_itens_separados != qtd_sep or
+                    operacao_existente.qtd_itens_conferidos != qtd_conf):
+                    operacao_existente.qtd_itens_separados = qtd_sep
+                    operacao_existente.qtd_itens_conferidos = qtd_conf
+                    db.add(operacao_existente)
+                    importados += 1
+            else:
+                # Criar operação nova
+                operacao = Operacao(
+                    data=data,
+                    pedido=str(pedido).strip(),
+                    separador_id=separador.id,
+                    qtd_itens_separados=qtd_sep,
+                    conferente_id=conferente.id,
+                    qtd_itens_conferidos=qtd_conf,
+                )
+                db.add(operacao)
+                importados += 1
 
         except Exception as e:
             erros.append(f"Linha {idx}: {str(e)}")

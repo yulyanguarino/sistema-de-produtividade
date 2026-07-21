@@ -723,8 +723,9 @@
         }
 
         function formatDia(dataStr) {
-            const data = new Date(dataStr + 'T00:00:00');
-            return String(data.getDate());
+            if (!dataStr) return '';
+            const [ano, mes, dia] = dataStr.split('-');
+            return dia;
         }
 
         async function refreshFilterOptions() {
