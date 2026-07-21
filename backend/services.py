@@ -310,8 +310,9 @@ def _obter_dias_disponiveis(
         query = query.filter(Operacao.separador_id == separador_id)
     if conferente_id:
         query = query.filter(Operacao.conferente_id == conferente_id)
-    rows = query.order_by(Operacao.data.asc()).all()
-    return [r[0] for r in rows]
+    rows = query.all()
+    dias = sorted(set(r[0] for r in rows), key=lambda d: d.day)
+    return dias
 
 
 def _obter_separadores_disponiveis(
