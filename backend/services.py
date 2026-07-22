@@ -401,6 +401,8 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
     logger.info(msg)
     importados = 0
     erros = []
+    dados_processados = 0
+    dados_com_erro = 0
     batch_size = 100  # Commit a cada 100 linhas (evita timeout e perda de dados)
 
     for idx, row in enumerate(dados, start=2):  # start=2 pois linha 1 é header
@@ -424,8 +426,11 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
 
             # Validações
             if not data or not pedido or not separador_nome or not conferente_nome:
-                erros.append(f"Linha {idx}: Dados incompletos")
+                erros.append(f"Linha {idx}: Dados incompletos (data={data}, pedido={pedido}, sep={separador_nome}, conf={conferente_nome})")
+                dados_com_erro += 1
                 continue
+
+            dados_processados += 1
 
             # Converter quantidades para int (ignorar se for fórmula ou inválido)
             try:
@@ -528,8 +533,10 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
 
     return {
         "importados": importados,
-        "erros": erros,
+        "erros": erros[:10],  # Retornar apenas os 10 primeiros erros
         "total_erros": len(erros),
+        "dados_processados": dados_processados,
+        "dados_com_erro": dados_com_erro,
     }
 
 
