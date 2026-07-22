@@ -172,6 +172,24 @@ def diagnose_database(db: Session = Depends(get_db)):
         }
 
 
+@router.get("/count-operacoes")
+def count_operacoes(db: Session = Depends(get_db)):
+    """Conta quantas operações tem no banco agora"""
+    from datetime import datetime
+    try:
+        total = db.query(Operacao).count()
+        return {
+            "status": "ok",
+            "total_operacoes": total,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
+
 @router.get("/test")
 def test_endpoint(db: Session = Depends(get_db)):
     """Endpoint de teste - verifica banco de dados"""
