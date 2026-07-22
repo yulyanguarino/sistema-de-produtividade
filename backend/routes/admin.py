@@ -190,6 +190,61 @@ def count_operacoes(db: Session = Depends(get_db)):
         }
 
 
+@router.post("/test-import-simples")
+def test_import_simples(db: Session = Depends(get_db)):
+    """Testa import com dados hardcoded - simula exatamente o upload"""
+    from datetime import date
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        # Dados de teste (como viriam do Excel)
+        dados = [
+            {
+                "DATA": date(2026, 1, 5),
+                "PEDIDO": "TEST-001",
+                "SEPARADOR": "TESTE_SEP",
+                "QTD ITENS(separador)": 10,
+                "CONFERENTE": "TESTE_CONF",
+                "QTD ITENS(conferente)": 10
+            },
+            {
+                "DATA": date(2026, 1, 6),
+                "PEDIDO": "TEST-002",
+                "SEPARADOR": "TESTE_SEP_2",
+                "QTD ITENS(separador)": 5,
+                "CONFERENTE": "TESTE_CONF_2",
+                "QTD ITENS(conferente)": 5
+            }
+        ]
+
+        total_antes = db.query(Operacao).count()
+        logger.info(f"Total ANTES: {total_antes}")
+
+        # Chamar a função de import
+        resultado = services.importar_operacoes_excel(db, dados)
+
+        total_depois = db.query(Operacao).count()
+        logger.info(f"Total DEPOIS: {total_depois}")
+        logger.info(f"Diferença: {total_depois - total_antes}")
+
+        return {
+            "status": "ok",
+            "resultado_import": resultado,
+            "total_antes": total_antes,
+            "total_depois": total_depois,
+            "realmente_inseridos": total_depois - total_antes
+        }
+    except Exception as e:
+        import traceback
+        logger.error(f"Erro: {str(e)}\n{traceback.format_exc()}")
+        return {
+            "status": "error",
+            "message": str(e),
+            "traceback": traceback.format_exc()
+        }
+
+
 @router.get("/test-date-conversion")
 def test_date_conversion(db: Session = Depends(get_db)):
     """Testa conversão de data ISO string"""
