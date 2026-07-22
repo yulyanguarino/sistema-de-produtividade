@@ -391,7 +391,10 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
               "PEDIDÉ": str, "CONFERENTE": str, "QTD ITENS(conferente)": int}, ...]
     """
     from datetime import datetime
+    import logging
+    logger = logging.getLogger(__name__)
 
+    logger.info(f"📥 Iniciando importação de {len(dados)} linhas do Excel")
     importados = 0
     erros = []
 
@@ -472,9 +475,17 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
                 importados += 1
 
         except Exception as e:
+            logger.error(f"❌ Erro na linha {idx}: {str(e)}")
             erros.append(f"Linha {idx}: {str(e)}")
 
-    db.commit()
+    logger.info(f"💾 Tentando salvar {importados} operações no banco...")
+    try:
+        db.commit()
+        logger.info(f"✅ SUCESSO! {importados} operações importadas e salvas no Neon!")
+    except Exception as e:
+        logger.error(f"❌ ERRO ao salvar no Neon: {str(e)}")
+        db.rollback()
+        raise
 
     return {
         "importados": importados,
