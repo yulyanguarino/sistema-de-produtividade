@@ -369,6 +369,10 @@ async def import_excel(file: UploadFile = File(...), db: Session = Depends(get_d
         if not file.filename.endswith(".xlsx"):
             raise HTTPException(status_code=400, detail="Arquivo deve ser .xlsx")
 
+        # Contar ANTES
+        total_antes = db.query(Operacao).count()
+        logger.info(f"Total de operações ANTES do import: {total_antes}")
+
         # Ler arquivo
         contents = await file.read()
         workbook = load_workbook(BytesIO(contents))
@@ -392,16 +396,26 @@ async def import_excel(file: UploadFile = File(...), db: Session = Depends(get_d
         if not dados:
             raise HTTPException(status_code=400, detail="Arquivo vazio ou sem dados")
 
+        logger.info(f"Total de linhas no arquivo: {len(dados)}")
+
         # Importar
         resultado = services.importar_operacoes_excel(db, dados)
+
+        # Contar DEPOIS
+        total_depois = db.query(Operacao).count()
+        logger.info(f"Total de operações DEPOIS do import: {total_depois}")
+        logger.info(f"Diferença: {total_depois - total_antes}")
 
         return {
             "status": "ok",
             "importados": resultado["importados"],
             "erros": resultado["erros"],
             "total_erros": resultado["total_erros"],
-            "headers_recebidos": headers,  # DEBUG: Mostrar headers na resposta
-            "primeiro_registro": dados[0] if dados else None,  # DEBUG: Mostrar primeiro registro
+            "total_antes": total_antes,
+            "total_depois": total_depois,
+            "realmente_inseridos": total_depois - total_antes,
+            "headers_recebidos": headers,
+            "primeiro_registro": dados[0] if dados else None,
         }
 
     except HTTPException:
