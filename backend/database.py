@@ -7,7 +7,16 @@ import os
 class Settings(BaseSettings):
     # Em produção (Render): usar DATABASE_URL (Neon PostgreSQL)
     # Localmente: usar SQLite como padrão
-    database_url: str = os.getenv("DATABASE_URL", "sqlite:///./produtividade.db")
+    # Se tiver postgresql://, converter para postgresql+psycopg://
+    _raw_url: str = os.getenv("DATABASE_URL", "sqlite:///./produtividade.db")
+
+    @property
+    def database_url(self) -> str:
+        url = self._raw_url
+        # Converter postgresql:// para postgresql+psycopg://
+        if url.startswith("postgresql://"):
+            url = url.replace("postgresql://", "postgresql+psycopg://", 1)
+        return url
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
