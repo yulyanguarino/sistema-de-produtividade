@@ -27,13 +27,24 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+import logging
+logger = logging.getLogger(__name__)
+
+db_url = settings.get_database_url
+# Mascarar senha nos logs
+db_url_safe = db_url.replace(db_url.split("@")[0].split("://")[1], "***:***") if "@" in db_url else db_url
+logger.info(f"📊 Conectando ao banco: {db_url_safe}")
+
 # Para PostgreSQL, não precisa de connect_args
 # Para SQLite, precisa de check_same_thread=False
 connect_args = {}
-if "sqlite" in settings.get_database_url:
+if "sqlite" in db_url:
     connect_args = {"check_same_thread": False}
+    logger.info("📁 Usando SQLite (local)")
+else:
+    logger.info("🔵 Usando PostgreSQL (Neon)")
 
-engine = create_engine(settings.get_database_url, pool_pre_ping=True, connect_args=connect_args)
+engine = create_engine(db_url, pool_pre_ping=True, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
