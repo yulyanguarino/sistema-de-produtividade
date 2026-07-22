@@ -10,6 +10,42 @@ from models import Operacao, Colaborador
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
+@router.get("/debug-import")
+def debug_import(db: Session = Depends(get_db)):
+    """Testa importação com dados hardcoded"""
+    from datetime import date
+
+    try:
+        # Dados de teste hardcoded (simulando Excel)
+        dados = [
+            {
+                "DATA": date(2026, 1, 15),
+                "PEDIDO": "TEST001",
+                "SEPARADOR": "TEST_SEP",
+                "QTD ITENS(separador)": 5,
+                "CONFERENTE": "TEST_CONF",
+                "QTD ITENS(conferente)": 5
+            }
+        ]
+
+        # Chamar função de import
+        resultado = services.importar_operacoes_excel(db, dados)
+
+        # Contar total após import
+        total = db.query(Operacao).count()
+
+        return {
+            "status": "ok",
+            "resultado_import": resultado,
+            "total_operacoes_agora": total
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "erro": str(e)
+        }
+
+
 @router.get("/debug-operacao")
 def debug_operacao(db: Session = Depends(get_db)):
     """Cria uma operação de teste manualmente"""
