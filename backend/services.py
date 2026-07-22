@@ -394,7 +394,9 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
     import logging
     logger = logging.getLogger(__name__)
 
-    logger.info(f"📥 Iniciando importação de {len(dados)} linhas do Excel")
+    msg = f"📥 Iniciando importação de {len(dados)} linhas do Excel"
+    print(msg, flush=True)
+    logger.info(msg)
     importados = 0
     erros = []
     batch_size = 100  # Commit a cada 100 linhas (evita timeout e perda de dados)
@@ -483,18 +485,31 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
         if importados % batch_size == 0 and importados > 0:
             try:
                 db.commit()
-                logger.info(f"✅ Batch de {batch_size} operações salvo com sucesso (total: {importados})")
+                msg = f"✅ Batch de {batch_size} operações salvo com sucesso (total: {importados})"
+                print(msg, flush=True)
+                logger.info(msg)
             except Exception as e:
-                logger.error(f"❌ Erro ao salvar batch: {str(e)}")
+                msg = f"❌ Erro ao salvar batch: {str(e)}"
+                print(msg, flush=True)
+                logger.error(msg)
                 db.rollback()
                 raise
 
-    logger.info(f"💾 Tentando salvar {importados} operações no banco...")
+    msg = f"💾 Tentando salvar {importados} operações no banco..."
+    print(msg, flush=True)
+    logger.info(msg)
     try:
         db.commit()
-        logger.info(f"✅ SUCESSO! {importados} operações importadas e salvas no Neon!")
+
+        # Verificar se realmente salvou no banco
+        total_no_banco = db.query(Operacao).count()
+        msg = f"✅ SUCESSO! {importados} operações importadas. Total no banco: {total_no_banco}"
+        print(msg, flush=True)
+        logger.info(msg)
     except Exception as e:
-        logger.error(f"❌ ERRO ao salvar no Neon: {str(e)}")
+        msg = f"❌ ERRO ao salvar no Neon: {str(e)}"
+        print(msg, flush=True)
+        logger.error(msg)
         db.rollback()
         raise
 

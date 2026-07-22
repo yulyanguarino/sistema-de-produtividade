@@ -3,9 +3,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
 from routes import colaboradores, operacoes, dashboard, admin
 import logging
+import sys
 
-# Configurar logging
-logging.basicConfig(level=logging.INFO)
+# Configurar logging GLOBALMENTE (para TODOS os módulos)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),  # Garante que stdout vai pro Render logs
+    ]
+)
+# Silenciar logs de terceiros
+logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
