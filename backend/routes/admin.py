@@ -10,6 +10,25 @@ from models import Operacao, Colaborador
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
+@router.get("/database-info")
+def database_info():
+    """Mostra qual banco está sendo usado"""
+    from database import settings
+    import os
+
+    db_url = settings.get_database_url
+    db_url_safe = db_url.replace(db_url.split("@")[0].split("://")[1], "***:***") if "@" in db_url else db_url
+
+    banco_tipo = "SQLite LOCAL" if "sqlite" in db_url else "PostgreSQL/Neon"
+
+    return {
+        "banco_tipo": banco_tipo,
+        "database_url": db_url_safe,
+        "env_var_set": "DATABASE_URL" in os.environ,
+        "is_production": "neon" in db_url or "postgresql" in db_url
+    }
+
+
 @router.get("/test")
 def test_endpoint(db: Session = Depends(get_db)):
     """Endpoint de teste - verifica banco de dados"""
