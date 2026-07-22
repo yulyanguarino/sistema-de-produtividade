@@ -5,21 +5,44 @@ import services
 from openpyxl import load_workbook
 from io import BytesIO
 import sys
+from models import Operacao, Colaborador
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
 @router.get("/test")
-def test_endpoint():
-    """Endpoint de teste - retorna a hora do servidor"""
+def test_endpoint(db: Session = Depends(get_db)):
+    """Endpoint de teste - verifica banco de dados"""
     from datetime import datetime
-    sys.stderr.write("🔴🔴🔴 ENDPOINT /admin/test FOI CHAMADO! 🔴🔴🔴\n")
-    sys.stderr.flush()
-    return {
-        "status": "ok",
-        "message": "Backend está respondendo",
-        "timestamp": datetime.now().isoformat()
-    }
+    try:
+        # Contar quantos registros tem no banco
+        total_ops = db.query(Operacao).count()
+        total_cols = db.query(Colaborador).count()
+
+        # Tentar criar um registro de teste
+        teste = Colaborador(nome=f"TESTE_{datetime.now().timestamp()}", ativo=True)
+        db.add(teste)
+        db.commit()
+        db.refresh(teste)
+
+        # Tentar ler o registro criado
+        verificar = db.query(Colaborador).filter(Colaborador.id == teste.id).first()
+
+        return {
+            "status": "ok",
+            "message": "Banco respondendo",
+            "timestamp": datetime.now().isoformat(),
+            "total_operacoes": total_ops,
+            "total_colaboradores": total_cols,
+            "teste_criado": teste.nome if teste else "FALHOU",
+            "teste_lido": verificar.nome if verificar else "NÃO LIDO"
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Erro no banco: {str(e)}",
+            "timestamp": datetime.now().isoformat()
+        }
 
 
 @router.post("/reset-db")
