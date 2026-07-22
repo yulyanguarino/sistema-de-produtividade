@@ -11,10 +11,15 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 @router.post("/reset-db")
 def reset_database(db: Session = Depends(get_db)):
     """Limpa todas as operações e colaboradores do banco (cuidado!)"""
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.critical("🚨🚨🚨 ENDPOINT /admin/reset-db FOI CHAMADO! LIMPANDO BANCO! 🚨🚨🚨")
     try:
         services.limpar_banco_dados(db)
+        logger.critical("🚨 BANCO LIMPO COM SUCESSO 🚨")
         return {"status": "ok", "message": "Banco de dados limpo com sucesso"}
     except Exception as e:
+        logger.error(f"❌ Erro ao limpar: {str(e)}")
         return {"status": "error", "message": str(e)}
 
 
