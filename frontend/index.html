@@ -896,6 +896,11 @@
             } catch (err) { showMessage('msg-import', '✗ Erro na conexão', 'error'); }
         }
 
+        // Keepalive: Faz ping ao backend a cada 5 min para manter conexão Neon viva
+        setInterval(() => {
+            fetch(`${API_URL}/`, { method: 'GET' }).catch(() => {});
+        }, 5 * 60 * 1000);  // 5 minutos
+
         document.getElementById('op-data').valueAsDate = new Date();
         initCharts();
         loadColaboradores();
