@@ -198,6 +198,12 @@ def test_import_simples(db: Session = Depends(get_db)):
     logger = logging.getLogger(__name__)
 
     try:
+        # Limpar dados de teste anteriores
+        db.query(Operacao).filter(Operacao.pedido.ilike("TEST-%")).delete()
+        db.query(Colaborador).filter(Colaborador.nome.ilike("TESTE_%")).delete()
+        db.commit()
+        logger.info("Limpei dados de teste anteriores")
+
         # Dados de teste (como viriam do Excel)
         dados = [
             {
