@@ -10,19 +10,45 @@ from models import Operacao, Colaborador
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
-@router.get("/info")
-def info():
-    """Mostra qual banco está sendo usado"""
-    from database import settings
-    import os
+@router.get("/debug-operacao")
+def debug_operacao(db: Session = Depends(get_db)):
+    """Cria uma operação de teste manualmente"""
+    from datetime import date
 
-    db_url = settings.get_database_url
-    is_sqlite = "sqlite" in db_url
+    try:
+        # Criar colaboradores de teste
+        sep = Colaborador(nome="DEBUG_SEP", ativo=True)
+        conf = Colaborador(nome="DEBUG_CONF", ativo=True)
+        db.add(sep)
+        db.add(conf)
+        db.flush()
 
-    return {
-        "banco": "SQLite" if is_sqlite else "PostgreSQL/Neon",
-        "has_env_var": "DATABASE_URL" in os.environ
-    }
+        # Criar operação de teste
+        op = Operacao(
+            data=date(2026, 1, 1),
+            pedido="DEBUG_001",
+            separador_id=sep.id,
+            qtd_itens_separados=10,
+            conferente_id=conf.id,
+            qtd_itens_conferidos=10
+        )
+        db.add(op)
+        db.commit()
+
+        # Verificar se foi salvo
+        total = db.query(Operacao).count()
+
+        return {
+            "status": "ok",
+            "operacao_criada": True,
+            "total_operacoes_agora": total,
+            "operacao_id": op.id
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "erro": str(e)
+        }
 
 
 @router.get("/test")
