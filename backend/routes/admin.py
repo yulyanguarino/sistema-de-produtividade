@@ -8,6 +8,18 @@ from io import BytesIO
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
+@router.get("/test")
+def test_endpoint():
+    """Endpoint de teste - retorna a hora do servidor"""
+    from datetime import datetime
+    print("🔴🔴🔴 ENDPOINT /admin/test FOI CHAMADO! 🔴🔴🔴", flush=True)
+    return {
+        "status": "ok",
+        "message": "Backend está respondendo",
+        "timestamp": datetime.now().isoformat()
+    }
+
+
 @router.post("/reset-db")
 def reset_database(db: Session = Depends(get_db)):
     """Limpa todas as operações e colaboradores do banco (cuidado!)"""
@@ -26,6 +38,7 @@ def reset_database(db: Session = Depends(get_db)):
 @router.post("/import-excel")
 async def import_excel(file: UploadFile = File(...), db: Session = Depends(get_db)):
     """Importa operações de um arquivo Excel (.xlsx)"""
+    print(f"🟢🟢🟢 POST /admin/import-excel RECEBIDO! Arquivo: {file.filename} 🟢🟢🟢", flush=True)
     try:
         # Validar extensão
         if not file.filename.endswith(".xlsx"):
