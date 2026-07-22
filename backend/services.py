@@ -410,6 +410,12 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
             # Converter datetime para date se necessário (openpyxl retorna datetime)
             if isinstance(data, datetime):
                 data = data.date()
+            elif isinstance(data, str):
+                # Se for string ISO (ex: "2026-01-05T00:00:00"), converter para date
+                try:
+                    data = datetime.fromisoformat(data.replace('Z', '+00:00')).date()
+                except (ValueError, AttributeError):
+                    pass  # Deixa como está se não conseguir converter
             pedido = row.get("PEDIDO")
             separador_nome = row.get("SEPARADOR", "").strip()
             qtd_sep = row.get("QTD ITENS(separador)")
