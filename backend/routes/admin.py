@@ -46,41 +46,49 @@ def debug_import(db: Session = Depends(get_db)):
         }
 
 
-@router.get("/debug-operacao")
-def debug_operacao(db: Session = Depends(get_db)):
-    """Cria uma operação de teste manualmente"""
+@router.get("/test-batch-insert")
+def test_batch_insert(db: Session = Depends(get_db)):
+    """Testa inserção de múltiplas operações em batch"""
     from datetime import date
 
     try:
-        # Criar colaboradores de teste
-        sep = Colaborador(nome="DEBUG_SEP", ativo=True)
-        conf = Colaborador(nome="DEBUG_CONF", ativo=True)
+        # Criar 10 operações de teste
+        sep = Colaborador(nome="BATCH_SEP", ativo=True)
+        conf = Colaborador(nome="BATCH_CONF", ativo=True)
         db.add(sep)
         db.add(conf)
         db.flush()
 
-        # Criar operação de teste
-        op = Operacao(
-            data=date(2026, 1, 1),
-            pedido="DEBUG_001",
-            separador_id=sep.id,
-            qtd_itens_separados=10,
-            conferente_id=conf.id,
-            qtd_itens_conferidos=10
-        )
-        db.add(op)
+        total_antes = db.query(Operacao).count()
+
+        # Inserir 10 operações
+        for i in range(10):
+            op = Operacao(
+                data=date(2026, 1, 1),
+                pedido=f"BATCH_{i:04d}",
+                separador_id=sep.id,
+                qtd_itens_separados=i+1,
+                conferente_id=conf.id,
+                qtd_itens_conferidos=i+1
+            )
+            db.add(op)
+
+        # Fazer commit
         db.commit()
 
-        # Verificar se foi salvo
-        total = db.query(Operacao).count()
+        # Verificar se foram salvos
+        total_depois = db.query(Operacao).count()
+        inserted = total_depois - total_antes
 
         return {
             "status": "ok",
-            "operacao_criada": True,
-            "total_operacoes_agora": total,
-            "operacao_id": op.id
+            "total_antes": total_antes,
+            "total_depois": total_depois,
+            "inseridos_com_sucesso": inserted,
+            "esperados": 10
         }
     except Exception as e:
+        db.rollback()
         return {
             "status": "error",
             "erro": str(e)
