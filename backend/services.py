@@ -304,29 +304,18 @@ def _obter_dias_disponiveis(
     separador_id: Optional[int] = None,
     conferente_id: Optional[int] = None,
 ) -> list[date]:
-    # Determinar o mês/ano a usar como base
-    if mes:
-        try:
-            mes_date = datetime.strptime(mes, "%Y-%m").date()
-        except ValueError:
-            return []
-    else:
-        # Se não tem mês, usar o primeiro mês dos dados
-        query = db.query(func.min(Operacao.data)).first()
-        if not query or not query[0]:
-            return []
-        mes_date = query[0]
-
-    # Retornar dias 1 até o último dia do mês
-    primeiro_dia = mes_date.replace(day=1)
-    # Calcular o último dia do mês
-    if mes_date.month == 12:
-        ultimo_dia = datetime(mes_date.year + 1, 1, 1).date() - __import__("datetime").timedelta(days=1)
-    else:
-        ultimo_dia = datetime(mes_date.year, mes_date.month + 1, 1).date() - __import__("datetime").timedelta(days=1)
-
-    # Retornar todos os dias do mês
-    return [primeiro_dia + __import__("datetime").timedelta(days=d) for d in range((ultimo_dia - primeiro_dia).days + 1)]
+    query = db.query(Operacao.data).distinct()
+    query = _aplicar_filtros_data(query, dia=None, mes=mes, periodo_inicio=None, periodo_fim=None)
+    if separador_id:
+        query = query.filter(Operacao.separador_id == separador_id)
+    if conferente_id:
+        query = query.filter(Operacao.conferente_id == conferente_id)
+    rows = query.all()
+    if not rows:
+        return []
+    # Retornar as datas completas e ordenadas (NÃO reconstruir com enero)
+    datas_set = {r[0] for r in rows if r[0] is not None}
+    return sorted(list(datas_set))
 
 
 def _obter_separadores_disponiveis(
