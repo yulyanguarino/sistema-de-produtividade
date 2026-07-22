@@ -2,6 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
 from routes import colaboradores, operacoes, dashboard, admin
+import logging
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Sistema de Produtividade Operacional",
@@ -20,7 +25,12 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup():
-    Base.metadata.create_all(bind=engine)
+    logger.info("🚀 Iniciando aplicação...")
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("✅ Tabelas criadas/verificadas com sucesso")
+    except Exception as e:
+        logger.error(f"❌ Erro ao criar tabelas: {str(e)}")
 
 
 app.include_router(colaboradores.router)

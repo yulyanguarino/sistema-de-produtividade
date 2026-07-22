@@ -375,9 +375,13 @@ def montar_dashboard_filtros(
 # ---- Admin ----
 def limpar_banco_dados(db: Session) -> None:
     """Deleta todas as operações e colaboradores"""
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning("⚠️ LIMPANDO BANCO DE DADOS - TODAS AS OPERAÇÕES E COLABORADORES SERÃO DELETADOS!")
     db.query(Operacao).delete()
     db.query(Colaborador).delete()
     db.commit()
+    logger.warning("⚠️ BANCO DE DADOS LIMPO COM SUCESSO")
 
 
 def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
