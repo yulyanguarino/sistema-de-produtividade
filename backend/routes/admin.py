@@ -190,7 +190,7 @@ def count_operacoes(db: Session = Depends(get_db)):
         }
 
 
-@router.post("/test-import-simples")
+@router.get("/test-import-simples")
 def test_import_simples(db: Session = Depends(get_db)):
     """Testa import com dados hardcoded - simula exatamente o upload"""
     from datetime import date
