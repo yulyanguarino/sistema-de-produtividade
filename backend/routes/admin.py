@@ -301,6 +301,77 @@ def test_date_conversion(db: Session = Depends(get_db)):
         }
 
 
+@router.get("/test-insert-manual")
+def test_insert_manual(db: Session = Depends(get_db)):
+    """Teste manual direto - insere e verifica"""
+    from datetime import date, datetime
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        logger.info("INICIANDO TESTE DE INSERT MANUAL")
+
+        # 1. Contar antes
+        total_antes = db.query(Operacao).count()
+        logger.info(f"Total ANTES: {total_antes}")
+
+        # 2. Criar colaboradores
+        sep = Colaborador(nome=f"MANUAL_SEP_{datetime.now().timestamp()}", ativo=True)
+        conf = Colaborador(nome=f"MANUAL_CONF_{datetime.now().timestamp()}", ativo=True)
+        db.add(sep)
+        db.add(conf)
+        db.flush()
+        logger.info(f"Colaboradores criados: SEP ID={sep.id}, CONF ID={conf.id}")
+
+        # 3. Criar operação
+        op = Operacao(
+            data=date(2026, 7, 22),
+            pedido=f"MANUAL_{datetime.now().timestamp()}",
+            separador_id=sep.id,
+            qtd_itens_separados=10,
+            conferente_id=conf.id,
+            qtd_itens_conferidos=10
+        )
+        db.add(op)
+        logger.info(f"Operacao criada (antes de commit): {op.pedido}")
+
+        # 4. COMMIT
+        logger.info("Executando db.commit()...")
+        db.commit()
+        logger.info("COMMIT EXECUTADO COM SUCESSO")
+
+        # 5. Contar depois
+        total_depois = db.query(Operacao).count()
+        logger.info(f"Total DEPOIS: {total_depois}")
+
+        # 6. Verificar se a operação foi realmente salva
+        verificar = db.query(Operacao).filter(Operacao.pedido == op.pedido).first()
+        logger.info(f"Verificação pós-commit: {verificar}")
+
+        return {
+            "status": "ok",
+            "total_antes": total_antes,
+            "total_depois": total_depois,
+            "foi_salvo": verificar is not None,
+            "operacao": {
+                "pedido": op.pedido,
+                "data": str(op.data),
+                "separador_id": op.separador_id,
+                "conferente_id": op.conferente_id
+            }
+        }
+    except Exception as e:
+        import traceback
+        logger.error(f"ERRO: {str(e)}")
+        logger.error(traceback.format_exc())
+        db.rollback()
+        return {
+            "status": "error",
+            "message": str(e),
+            "traceback": traceback.format_exc()
+        }
+
+
 @router.get("/test")
 def test_endpoint(db: Session = Depends(get_db)):
     """Endpoint de teste - verifica banco de dados"""
