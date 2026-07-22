@@ -163,6 +163,10 @@ async def import_excel(file: UploadFile = File(...), db: Session = Depends(get_d
         headers = [cell.value for cell in worksheet[1]]
         dados = []
 
+        # DEBUG: Mostrar headers
+        sys.stderr.write(f"Headers do Excel: {headers}\n")
+        sys.stderr.flush()
+
         for row in worksheet.iter_rows(min_row=2, values_only=False):
             row_dict = {}
             for col_idx, cell in enumerate(row):
@@ -176,6 +180,11 @@ async def import_excel(file: UploadFile = File(...), db: Session = Depends(get_d
 
         if not dados:
             raise HTTPException(status_code=400, detail="Arquivo vazio ou sem dados")
+
+        # DEBUG: Mostrar primeiro registro
+        if dados:
+            sys.stderr.write(f"Primeiro registro: {dados[0]}\n")
+            sys.stderr.flush()
 
         # Importar
         resultado = services.importar_operacoes_excel(db, dados)
