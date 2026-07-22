@@ -25,7 +25,18 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup():
+    from database import settings
     logger.info("🚀 Iniciando aplicação...")
+
+    db_url = settings.get_database_url
+    db_url_safe = db_url.replace(db_url.split("@")[0].split("://")[1], "***:***") if "@" in db_url else db_url
+    logger.info(f"📊 DATABASE_URL: {db_url_safe}")
+
+    if "sqlite" in db_url:
+        logger.warning("⚠️ USANDO SQLITE LOCAL - DADOS SERÃO PERDIDOS AO REINICIAR!")
+    elif "postgresql" in db_url or "neon" in db_url:
+        logger.info("✅ USANDO NEON POSTGRESQL - Dados persistem entre reinicializações")
+
     try:
         Base.metadata.create_all(bind=engine)
         logger.info("✅ Tabelas criadas/verificadas com sucesso")
