@@ -497,13 +497,21 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
         # Commit em batches para evitar timeout e perda de dados
         if importados % batch_size == 0 and importados > 0:
             try:
+                total_antes = db.query(Operacao).count()
                 db.commit()
-                msg = f"✅ Batch de {batch_size} operações salvo com sucesso (total: {importados})"
+                total_depois = db.query(Operacao).count()
+                delta = total_depois - total_antes
+                msg = f"✅ Batch de {batch_size} operações: {delta} efetivamente salvos (total agora: {total_depois})"
                 sys.stderr.write(msg + "\n")
                 sys.stderr.flush()
                 logger.info(msg)
+                if delta == 0:
+                    msg = f"⚠️ AVISO: Commit foi chamado mas nenhum dado foi salvo! Verificar conexão com Neon"
+                    sys.stderr.write(msg + "\n")
+                    sys.stderr.flush()
+                    logger.warning(msg)
             except Exception as e:
-                msg = f"❌ Erro ao salvar batch: {str(e)}"
+                msg = f"❌ Erro CRÍTICO ao salvar batch: {str(e)}"
                 sys.stderr.write(msg + "\n")
                 sys.stderr.flush()
                 logger.error(msg)
@@ -514,12 +522,31 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
     sys.stderr.write(msg + "\n")
     sys.stderr.flush()
     logger.info(msg)
-    try:
-        db.commit()
 
-        # Verificar se realmente salvou no banco
-        total_no_banco = db.query(Operacao).count()
-        msg = f"✅ SUCESSO! {importados} operações importadas. Total no banco: {total_no_banco}"
+    # PRÉ-COMMIT: Contar registros já no banco
+    total_antes_commit = db.query(Operacao).count()
+    msg = f"📊 Registros no banco ANTES do commit: {total_antes_commit}"
+    sys.stderr.write(msg + "\n")
+    sys.stderr.flush()
+    logger.info(msg)
+
+    try:
+        # Fazer commit
+        db.commit()
+        msg = f"✅ Commit executado com sucesso"
+        sys.stderr.write(msg + "\n")
+        sys.stderr.flush()
+        logger.info(msg)
+
+        # PÓS-COMMIT: Verificar se realmente salvou no banco
+        total_depois_commit = db.query(Operacao).count()
+        msg = f"📊 Registros no banco DEPOIS do commit: {total_depois_commit}"
+        sys.stderr.write(msg + "\n")
+        sys.stderr.flush()
+        logger.info(msg)
+
+        registros_adicionados = total_depois_commit - total_antes_commit
+        msg = f"✅ SUCESSO! {importados} operações processadas. {registros_adicionados} realmente inseridas. Total no banco: {total_depois_commit}"
         sys.stderr.write(msg + "\n")
         sys.stderr.flush()
         logger.info(msg)

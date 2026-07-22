@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from database import get_db
 import services
 from openpyxl import load_workbook
@@ -92,6 +93,83 @@ def test_batch_insert(db: Session = Depends(get_db)):
         return {
             "status": "error",
             "erro": str(e)
+        }
+
+
+@router.get("/diagnose-db")
+def diagnose_database(db: Session = Depends(get_db)):
+    """Diagnóstico completo da conexão com banco de dados"""
+    from datetime import datetime
+    from database import settings, engine
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        db_url = settings.get_database_url
+        banco_tipo = "SQLite" if "sqlite" in db_url else "PostgreSQL/Neon"
+
+        # 1. Testar conexão
+        logger.info("🔍 Iniciando diagnóstico do banco...")
+        db.execute(text("SELECT 1"))
+        conexao_ok = True
+        msg_conexao = "✅ Conexão com banco OK"
+
+        # 2. Contar registros ANTES
+        total_ops_antes = db.query(Operacao).count()
+        total_cols_antes = db.query(Colaborador).count()
+
+        # 3. Criar colaborador de teste
+        nome_teste = f"DIAGNOSE_{datetime.now().timestamp()}"
+        teste_col = Colaborador(nome=nome_teste, ativo=True)
+        db.add(teste_col)
+        db.flush()
+        id_teste = teste_col.id
+
+        # 4. Commit
+        db.commit()
+        logger.info(f"Commit executado. ID do teste: {id_teste}")
+
+        # 5. Verificar se foi realmente salvo
+        teste_verificado = db.query(Colaborador).filter(Colaborador.id == id_teste).first()
+        foi_salvo = teste_verificado is not None
+
+        # 6. Contar registros DEPOIS
+        total_cols_depois = db.query(Colaborador).count()
+
+        # 7. Limpar teste
+        if teste_verificado:
+            db.delete(teste_verificado)
+            db.commit()
+
+        return {
+            "status": "ok" if foi_salvo else "falha",
+            "banco_tipo": banco_tipo,
+            "conexao": msg_conexao if conexao_ok else "❌ Erro na conexão",
+            "teste_criacao": {
+                "nome": nome_teste,
+                "id": id_teste,
+                "foi_salvo": foi_salvo,
+                "verificado_apos_commit": teste_verificado is not None
+            },
+            "registros": {
+                "colaboradores_antes": total_cols_antes,
+                "colaboradores_depois": total_cols_depois,
+                "operacoes": total_ops_antes
+            },
+            "pool_info": {
+                "pool_size": engine.pool.size() if hasattr(engine.pool, 'size') else "N/A",
+                "checked_out": engine.pool.checkedout() if hasattr(engine.pool, 'checkedout') else "N/A"
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        import traceback
+        logger.error(f"❌ Erro no diagnóstico: {str(e)}\n{traceback.format_exc()}")
+        return {
+            "status": "error",
+            "message": f"Erro ao diagnosticar banco: {str(e)}",
+            "traceback": traceback.format_exc(),
+            "timestamp": datetime.now().isoformat()
         }
 
 
