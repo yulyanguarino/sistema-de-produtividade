@@ -44,7 +44,14 @@ if "sqlite" in db_url:
 else:
     logger.info("🔵 Usando PostgreSQL (Neon)")
 
-engine = create_engine(db_url, pool_pre_ping=True, connect_args=connect_args)
+engine = create_engine(
+    db_url,
+    pool_pre_ping=True,
+    pool_recycle=300,  # Recicla conexões a cada 5 min (Neon morre após 5-15 min)
+    pool_size=5,
+    max_overflow=10,
+    connect_args=connect_args
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 

@@ -397,6 +397,7 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
     logger.info(f"📥 Iniciando importação de {len(dados)} linhas do Excel")
     importados = 0
     erros = []
+    batch_size = 100  # Commit a cada 100 linhas (evita timeout e perda de dados)
 
     for idx, row in enumerate(dados, start=2):  # start=2 pois linha 1 é header
         try:
@@ -477,6 +478,16 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
         except Exception as e:
             logger.error(f"❌ Erro na linha {idx}: {str(e)}")
             erros.append(f"Linha {idx}: {str(e)}")
+
+        # Commit em batches para evitar timeout e perda de dados
+        if importados % batch_size == 0 and importados > 0:
+            try:
+                db.commit()
+                logger.info(f"✅ Batch de {batch_size} operações salvo com sucesso (total: {importados})")
+            except Exception as e:
+                logger.error(f"❌ Erro ao salvar batch: {str(e)}")
+                db.rollback()
+                raise
 
     logger.info(f"💾 Tentando salvar {importados} operações no banco...")
     try:

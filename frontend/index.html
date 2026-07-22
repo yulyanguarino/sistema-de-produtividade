@@ -891,7 +891,28 @@
                     document.getElementById('resultado-texto').innerHTML = texto;
                     resultDiv.style.display = 'block';
                     e.target.reset();
-                    setTimeout(() => { loadColaboradores(); loadOperacoes(); refreshFilterOptions(); loadDashboard(); }, 1000);
+
+                    // Validação pós-upload: verifica se dados realmente foram salvos
+                    setTimeout(async () => {
+                        try {
+                            const res = await fetch(`${API_URL}/operacoes`);
+                            const ops = await res.json();
+                            if (ops.length === 0) {
+                                showMessage('msg-import', '⚠️ AVISO: Dados não foram salvos! Tente novamente.', 'error');
+                                return;
+                            }
+                            loadColaboradores();
+                            loadOperacoes();
+                            refreshFilterOptions();
+                            loadDashboard();
+                        } catch (err) {
+                            console.error('Erro ao validar upload:', err);
+                            loadColaboradores();
+                            loadOperacoes();
+                            refreshFilterOptions();
+                            loadDashboard();
+                        }
+                    }, 1000);
                 } else showMessage('msg-import', `✗ ${data.detail || 'Erro ao importar'}`, 'error');
             } catch (err) { showMessage('msg-import', '✗ Erro na conexão', 'error'); }
         }
