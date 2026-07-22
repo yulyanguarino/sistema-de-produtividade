@@ -14,7 +14,13 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 def test_endpoint(db: Session = Depends(get_db)):
     """Endpoint de teste - verifica banco de dados"""
     from datetime import datetime
+    from database import settings
+
     try:
+        # Mostrar qual banco está sendo usado
+        db_url = settings.get_database_url
+        banco_tipo = "SQLite" if "sqlite" in db_url else "PostgreSQL/Neon"
+
         # Contar quantos registros tem no banco
         total_ops = db.query(Operacao).count()
         total_cols = db.query(Colaborador).count()
@@ -31,6 +37,7 @@ def test_endpoint(db: Session = Depends(get_db)):
         return {
             "status": "ok",
             "message": "Banco respondendo",
+            "banco_tipo": banco_tipo,
             "timestamp": datetime.now().isoformat(),
             "total_operacoes": total_ops,
             "total_colaboradores": total_cols,
