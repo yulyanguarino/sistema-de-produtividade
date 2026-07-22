@@ -190,6 +190,56 @@ def count_operacoes(db: Session = Depends(get_db)):
         }
 
 
+@router.get("/test-date-conversion")
+def test_date_conversion(db: Session = Depends(get_db)):
+    """Testa conversão de data ISO string"""
+    from datetime import datetime
+
+    # Simular o que vem do Excel
+    data_iso_string = "2026-01-05T00:00:00"
+
+    try:
+        # Tentar converter igual o código faz
+        data = datetime.fromisoformat(data_iso_string.replace('Z', '+00:00')).date()
+
+        # Tentar inserir no banco
+        sep = Colaborador(nome="TEST_SEP_DATE", ativo=True)
+        conf = Colaborador(nome="TEST_CONF_DATE", ativo=True)
+        db.add(sep)
+        db.add(conf)
+        db.flush()
+
+        op = Operacao(
+            data=data,
+            pedido="TEST_DATE_001",
+            separador_id=sep.id,
+            qtd_itens_separados=5,
+            conferente_id=conf.id,
+            qtd_itens_conferidos=5
+        )
+        db.add(op)
+        db.commit()
+
+        # Verificar se foi salvo
+        verificar = db.query(Operacao).filter(Operacao.pedido == "TEST_DATE_001").first()
+
+        return {
+            "status": "ok",
+            "data_convertida": str(data),
+            "tipo_data": str(type(data)),
+            "foi_salvo": verificar is not None,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        import traceback
+        db.rollback()
+        return {
+            "status": "error",
+            "message": str(e),
+            "traceback": traceback.format_exc()
+        }
+
+
 @router.get("/test")
 def test_endpoint(db: Session = Depends(get_db)):
     """Endpoint de teste - verifica banco de dados"""
