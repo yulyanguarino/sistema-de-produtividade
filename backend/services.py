@@ -2,7 +2,6 @@ from sqlalchemy import func, desc, asc
 from sqlalchemy.orm import Session
 from datetime import date, datetime
 from typing import Optional
-import sys
 from models import Colaborador, Operacao
 from schemas import (
     ColaboradorCreate,
@@ -396,8 +395,6 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
     logger = logging.getLogger(__name__)
 
     msg = f"📥 Iniciando importação de {len(dados)} linhas do Excel"
-    sys.stderr.write(msg + "\n")
-    sys.stderr.flush()
     logger.info(msg)
     importados = 0
     erros = []
@@ -502,13 +499,9 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
                 total_depois = db.query(Operacao).count()
                 delta = total_depois - total_antes
                 msg = f"✅ Batch de {batch_size} operações: {delta} efetivamente salvos (total agora: {total_depois})"
-                sys.stderr.write(msg + "\n")
-                sys.stderr.flush()
                 logger.info(msg)
                 if delta == 0:
                     msg = f"⚠️ AVISO: Commit foi chamado mas nenhum dado foi salvo! Verificar conexão com Neon"
-                    sys.stderr.write(msg + "\n")
-                    sys.stderr.flush()
                     logger.warning(msg)
             except Exception as e:
                 msg = f"❌ Erro CRÍTICO ao salvar batch: {str(e)}"
@@ -519,41 +512,29 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
                 raise
 
     msg = f"💾 Tentando salvar {importados} operações no banco..."
-    sys.stderr.write(msg + "\n")
-    sys.stderr.flush()
     logger.info(msg)
 
     # PRÉ-COMMIT: Contar registros já no banco
     total_antes_commit = db.query(Operacao).count()
     msg = f"📊 Registros no banco ANTES do commit: {total_antes_commit}"
-    sys.stderr.write(msg + "\n")
-    sys.stderr.flush()
     logger.info(msg)
 
     try:
         # Fazer commit
         db.commit()
         msg = f"✅ Commit executado com sucesso"
-        sys.stderr.write(msg + "\n")
-        sys.stderr.flush()
         logger.info(msg)
 
         # PÓS-COMMIT: Verificar se realmente salvou no banco
         total_depois_commit = db.query(Operacao).count()
         msg = f"📊 Registros no banco DEPOIS do commit: {total_depois_commit}"
-        sys.stderr.write(msg + "\n")
-        sys.stderr.flush()
         logger.info(msg)
 
         registros_adicionados = total_depois_commit - total_antes_commit
         msg = f"✅ SUCESSO! {importados} operações processadas. {registros_adicionados} realmente inseridas. Total no banco: {total_depois_commit}"
-        sys.stderr.write(msg + "\n")
-        sys.stderr.flush()
         logger.info(msg)
     except Exception as e:
         msg = f"❌ ERRO ao salvar no Neon: {str(e)}"
-        sys.stderr.write(msg + "\n")
-        sys.stderr.flush()
         logger.error(msg)
         db.rollback()
         raise

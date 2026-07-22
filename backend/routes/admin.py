@@ -5,7 +5,6 @@ from database import get_db
 import services
 from openpyxl import load_workbook
 from io import BytesIO
-import sys
 from models import Operacao, Colaborador
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -233,8 +232,9 @@ def reset_database(db: Session = Depends(get_db)):
 @router.post("/import-excel")
 async def import_excel(file: UploadFile = File(...), db: Session = Depends(get_db)):
     """Importa operações de um arquivo Excel (.xlsx)"""
-    sys.stderr.write(f"🟢🟢🟢 POST /admin/import-excel RECEBIDO! Arquivo: {file.filename} 🟢🟢🟢\n")
-    sys.stderr.flush()
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"🟢🟢🟢 POST /admin/import-excel RECEBIDO! Arquivo: {file.filename} 🟢🟢🟢")
     try:
         # Validar extensão
         if not file.filename.endswith(".xlsx"):
