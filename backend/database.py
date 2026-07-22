@@ -1,15 +1,13 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 from pydantic_settings import BaseSettings, SettingsConfigDict
+import os
 
 
 class Settings(BaseSettings):
-    db_host: str = "localhost"
-    db_port: int = 5432
-    db_name: str = "Dash_Estoque"
-    db_user: str = "postgres"
-    db_password: str = "postgres"
-    database_url: str = "sqlite:///./produtividade.db"
+    # Em produção (Render): usar DATABASE_URL (Neon PostgreSQL)
+    # Localmente: usar SQLite como padrão
+    database_url: str = os.getenv("DATABASE_URL", "sqlite:///./produtividade.db")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
@@ -20,7 +18,13 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-engine = create_engine(settings.get_database_url, pool_pre_ping=True, connect_args={"check_same_thread": False})
+# Para PostgreSQL, não precisa de connect_args
+# Para SQLite, precisa de check_same_thread=False
+connect_args = {}
+if "sqlite" in settings.get_database_url:
+    connect_args = {"check_same_thread": False}
+
+engine = create_engine(settings.get_database_url, pool_pre_ping=True, connect_args=connect_args)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
