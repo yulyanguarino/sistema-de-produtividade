@@ -1,3 +1,4 @@
+import sys
 from sqlalchemy import func, desc, asc
 from sqlalchemy.orm import Session
 from datetime import date, datetime
@@ -389,6 +390,10 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
     Importa operações de uma lista de dicts (vindo de Excel)
     Espera: [{"DATA": date, "SEPARADOR": str, "QTD ITENS(separador)": int,
               "PEDIDÉ": str, "CONFERENTE": str, "QTD ITENS(conferente)": int}, ...]
+
+    Pré-carrega colaboradores e operações existentes em memória para evitar
+    fazer múltiplas queries por linha (o que tornava a importação de
+    planilhas grandes lenta o suficiente para estourar timeout do servidor).
     """
     from datetime import datetime
     import logging
@@ -400,7 +405,23 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
     erros = []
     dados_processados = 0
     dados_com_erro = 0
-    batch_size = 100  # Commit a cada 100 linhas (evita timeout e perda de dados)
+    batch_size = 100  # Commit a cada 100 linhas (evita perda total em caso de erro)
+
+    colaboradores_cache = {c.nome.strip().upper(): c for c in db.query(Colaborador).all()}
+    operacoes_cache = {
+        (op.data, op.pedido, op.separador_id, op.conferente_id): op
+        for op in db.query(Operacao).all()
+    }
+
+    def obter_ou_criar_colaborador(nome: str) -> Colaborador:
+        chave = nome.upper()
+        colaborador = colaboradores_cache.get(chave)
+        if not colaborador:
+            colaborador = Colaborador(nome=nome, ativo=True)
+            db.add(colaborador)
+            db.flush()
+            colaboradores_cache[chave] = colaborador
+        return colaborador
 
     for idx, row in enumerate(dados, start=2):  # start=2 pois linha 1 é header
         try:
@@ -416,9 +437,9 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
                 except (ValueError, AttributeError):
                     pass  # Deixa como está se não conseguir converter
             pedido = row.get("PEDIDO")
-            separador_nome = row.get("SEPARADOR", "").strip()
+            separador_nome = (row.get("SEPARADOR") or "").strip()
             qtd_sep = row.get("QTD ITENS(separador)")
-            conferente_nome = row.get("CONFERENTE", "").strip()
+            conferente_nome = (row.get("CONFERENTE") or "").strip()
             qtd_conf = row.get("QTD ITENS(conferente)")
 
             # Validações
@@ -441,30 +462,13 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
                 erros.append(f"Linha {idx}: Quantidades devem ser maiores que 0")
                 continue
 
-            # Buscar/criar colaboradores
-            separador = db.query(Colaborador).filter(
-                Colaborador.nome.ilike(separador_nome)
-            ).first()
-            if not separador:
-                separador = Colaborador(nome=separador_nome, ativo=True)
-                db.add(separador)
-                db.flush()
+            separador = obter_ou_criar_colaborador(separador_nome)
+            conferente = obter_ou_criar_colaborador(conferente_nome)
+            pedido_str = str(pedido).strip()
 
-            conferente = db.query(Colaborador).filter(
-                Colaborador.nome.ilike(conferente_nome)
-            ).first()
-            if not conferente:
-                conferente = Colaborador(nome=conferente_nome, ativo=True)
-                db.add(conferente)
-                db.flush()
-
-            # Verificar se operação já existe (evitar duplicatas)
-            operacao_existente = db.query(Operacao).filter(
-                Operacao.data == data,
-                Operacao.pedido == str(pedido).strip(),
-                Operacao.separador_id == separador.id,
-                Operacao.conferente_id == conferente.id,
-            ).first()
+            # Verificar se operação já existe (evitar duplicatas) - via cache em memória
+            chave_operacao = (data, pedido_str, separador.id, conferente.id)
+            operacao_existente = operacoes_cache.get(chave_operacao)
 
             if operacao_existente:
                 # Atualizar quantidades se houver diferença
@@ -472,37 +476,30 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
                     operacao_existente.qtd_itens_conferidos != qtd_conf):
                     operacao_existente.qtd_itens_separados = qtd_sep
                     operacao_existente.qtd_itens_conferidos = qtd_conf
-                    db.add(operacao_existente)
                     importados += 1
             else:
                 # Criar operação nova
                 operacao = Operacao(
                     data=data,
-                    pedido=str(pedido).strip(),
+                    pedido=pedido_str,
                     separador_id=separador.id,
                     qtd_itens_separados=qtd_sep,
                     conferente_id=conferente.id,
                     qtd_itens_conferidos=qtd_conf,
                 )
                 db.add(operacao)
+                operacoes_cache[chave_operacao] = operacao
                 importados += 1
 
         except Exception as e:
             logger.error(f"❌ Erro na linha {idx}: {str(e)}")
             erros.append(f"Linha {idx}: {str(e)}")
 
-        # Commit em batches para evitar timeout e perda de dados
+        # Commit em batches para evitar perder tudo se algo falhar no meio
         if importados % batch_size == 0 and importados > 0:
             try:
-                total_antes = db.query(Operacao).count()
                 db.commit()
-                total_depois = db.query(Operacao).count()
-                delta = total_depois - total_antes
-                msg = f"✅ Batch de {batch_size} operações: {delta} efetivamente salvos (total agora: {total_depois})"
-                logger.info(msg)
-                if delta == 0:
-                    msg = f"⚠️ AVISO: Commit foi chamado mas nenhum dado foi salvo! Verificar conexão com Neon"
-                    logger.warning(msg)
+                logger.info(f"✅ Batch de {batch_size} operações commitado (progresso: linha {idx})")
             except Exception as e:
                 msg = f"❌ Erro CRÍTICO ao salvar batch: {str(e)}"
                 sys.stderr.write(msg + "\n")
@@ -511,27 +508,10 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
                 db.rollback()
                 raise
 
-    msg = f"💾 Tentando salvar {importados} operações no banco..."
-    logger.info(msg)
-
-    # PRÉ-COMMIT: Contar registros já no banco
-    total_antes_commit = db.query(Operacao).count()
-    msg = f"📊 Registros no banco ANTES do commit: {total_antes_commit}"
-    logger.info(msg)
-
     try:
-        # Fazer commit
         db.commit()
-        msg = f"✅ Commit executado com sucesso"
-        logger.info(msg)
-
-        # PÓS-COMMIT: Verificar se realmente salvou no banco
         total_depois_commit = db.query(Operacao).count()
-        msg = f"📊 Registros no banco DEPOIS do commit: {total_depois_commit}"
-        logger.info(msg)
-
-        registros_adicionados = total_depois_commit - total_antes_commit
-        msg = f"✅ SUCESSO! {importados} operações processadas. {registros_adicionados} realmente inseridas. Total no banco: {total_depois_commit}"
+        msg = f"✅ SUCESSO! {importados} operações processadas. Total no banco: {total_depois_commit}"
         logger.info(msg)
     except Exception as e:
         msg = f"❌ ERRO ao salvar no Neon: {str(e)}"

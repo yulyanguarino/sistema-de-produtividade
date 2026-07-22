@@ -430,8 +430,14 @@ def reset_database(db: Session = Depends(get_db)):
 
 
 @router.post("/import-excel")
-async def import_excel(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    """Importa operações de um arquivo Excel (.xlsx)"""
+def import_excel(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    """Importa operações de um arquivo Excel (.xlsx)
+
+    Endpoint síncrono (não `async def`) de propósito: o FastAPI executa rotas
+    síncronas numa threadpool separada, então uma importação grande e lenta
+    não bloqueia o event loop nem impede o servidor de responder a outras
+    requisições (ex: health check do Render) enquanto processa.
+    """
     import logging
     logger = logging.getLogger(__name__)
     logger.info(f"🟢🟢🟢 POST /admin/import-excel RECEBIDO! Arquivo: {file.filename} 🟢🟢🟢")
@@ -445,7 +451,7 @@ async def import_excel(file: UploadFile = File(...), db: Session = Depends(get_d
         logger.info(f"Total de operações ANTES do import: {total_antes}")
 
         # Ler arquivo
-        contents = await file.read()
+        contents = file.file.read()
         workbook = load_workbook(BytesIO(contents))
         worksheet = workbook.active
 
