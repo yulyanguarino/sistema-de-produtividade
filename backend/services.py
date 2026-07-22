@@ -2,6 +2,7 @@ from sqlalchemy import func, desc, asc
 from sqlalchemy.orm import Session
 from datetime import date, datetime
 from typing import Optional
+import sys
 from models import Colaborador, Operacao
 from schemas import (
     ColaboradorCreate,
@@ -395,7 +396,8 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
     logger = logging.getLogger(__name__)
 
     msg = f"📥 Iniciando importação de {len(dados)} linhas do Excel"
-    print(msg, flush=True)
+    sys.stderr.write(msg + "\n")
+    sys.stderr.flush()
     logger.info(msg)
     importados = 0
     erros = []
@@ -486,17 +488,20 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
             try:
                 db.commit()
                 msg = f"✅ Batch de {batch_size} operações salvo com sucesso (total: {importados})"
-                print(msg, flush=True)
+                sys.stderr.write(msg + "\n")
+                sys.stderr.flush()
                 logger.info(msg)
             except Exception as e:
                 msg = f"❌ Erro ao salvar batch: {str(e)}"
-                print(msg, flush=True)
+                sys.stderr.write(msg + "\n")
+                sys.stderr.flush()
                 logger.error(msg)
                 db.rollback()
                 raise
 
     msg = f"💾 Tentando salvar {importados} operações no banco..."
-    print(msg, flush=True)
+    sys.stderr.write(msg + "\n")
+    sys.stderr.flush()
     logger.info(msg)
     try:
         db.commit()
@@ -504,11 +509,13 @@ def importar_operacoes_excel(db: Session, dados: list[dict]) -> dict:
         # Verificar se realmente salvou no banco
         total_no_banco = db.query(Operacao).count()
         msg = f"✅ SUCESSO! {importados} operações importadas. Total no banco: {total_no_banco}"
-        print(msg, flush=True)
+        sys.stderr.write(msg + "\n")
+        sys.stderr.flush()
         logger.info(msg)
     except Exception as e:
         msg = f"❌ ERRO ao salvar no Neon: {str(e)}"
-        print(msg, flush=True)
+        sys.stderr.write(msg + "\n")
+        sys.stderr.flush()
         logger.error(msg)
         db.rollback()
         raise

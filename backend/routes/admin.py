@@ -4,6 +4,7 @@ from database import get_db
 import services
 from openpyxl import load_workbook
 from io import BytesIO
+import sys
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -12,7 +13,8 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 def test_endpoint():
     """Endpoint de teste - retorna a hora do servidor"""
     from datetime import datetime
-    print("🔴🔴🔴 ENDPOINT /admin/test FOI CHAMADO! 🔴🔴🔴", flush=True)
+    sys.stderr.write("🔴🔴🔴 ENDPOINT /admin/test FOI CHAMADO! 🔴🔴🔴\n")
+    sys.stderr.flush()
     return {
         "status": "ok",
         "message": "Backend está respondendo",
@@ -38,7 +40,8 @@ def reset_database(db: Session = Depends(get_db)):
 @router.post("/import-excel")
 async def import_excel(file: UploadFile = File(...), db: Session = Depends(get_db)):
     """Importa operações de um arquivo Excel (.xlsx)"""
-    print(f"🟢🟢🟢 POST /admin/import-excel RECEBIDO! Arquivo: {file.filename} 🟢🟢🟢", flush=True)
+    sys.stderr.write(f"🟢🟢🟢 POST /admin/import-excel RECEBIDO! Arquivo: {file.filename} 🟢🟢🟢\n")
+    sys.stderr.flush()
     try:
         # Validar extensão
         if not file.filename.endswith(".xlsx"):
