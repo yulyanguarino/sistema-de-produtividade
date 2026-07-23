@@ -518,6 +518,10 @@
                             <div class="number" id="total-conferidos">0</div>
                         </div>
                         <div class="stat-card">
+                            <h3>Ticket Médio</h3>
+                            <div class="number" id="ticket-medio">0</div>
+                        </div>
+                        <div class="stat-card">
                             <h3>Colaboradores Ativos</h3>
                             <div class="number" id="colabs-ativos">0</div>
                         </div>
@@ -786,6 +790,7 @@
             document.getElementById('total-pedidos').textContent = data.indicadores.total_pedidos;
             document.getElementById('total-separados').textContent = data.indicadores.total_itens_separados;
             document.getElementById('total-conferidos').textContent = data.indicadores.total_itens_conferidos;
+            document.getElementById('ticket-medio').textContent = data.indicadores.ticket_medio.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
             document.getElementById('colabs-ativos').textContent = data.indicadores.colaboradores_ativos;
             const sepHtml = data.ranking.separadores.map((r, i) => `<div class="ranking-item"><div class="ranking-pos">#${i + 1}</div><div class="ranking-name">${r.colaborador_nome}</div><div class="ranking-stats">${r.qtd_pedidos} pedidos • ${r.qtd_itens} itens</div></div>`).join('');
             document.getElementById('ranking-separadores').innerHTML = sepHtml || '<p style="color:var(--text-secondary)">Sem dados</p>';

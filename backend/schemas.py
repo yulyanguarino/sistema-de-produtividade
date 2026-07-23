@@ -53,6 +53,7 @@ class IndicadoresRead(BaseModel):
     total_itens_separados: int
     total_itens_conferidos: int
     colaboradores_ativos: int
+    ticket_medio: float
 
 
 class RankingItem(BaseModel):

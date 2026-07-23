@@ -195,11 +195,14 @@ def calcular_indicadores(
     # Get count of active colaboradores (global, not filtered by date/operacoes)
     colaboradores_ativos = db.query(func.count(Colaborador.id)).filter(Colaborador.ativo == True).scalar() or 0
 
+    ticket_medio = round(total_itens_separados / total_pedidos, 2) if total_pedidos > 0 else 0.0
+
     return IndicadoresRead(
         total_pedidos=total_pedidos,
         total_itens_separados=total_itens_separados,
         total_itens_conferidos=total_itens_conferidos,
         colaboradores_ativos=int(colaboradores_ativos),
+        ticket_medio=ticket_medio,
     )
 
 
