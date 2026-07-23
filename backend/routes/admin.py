@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -6,6 +7,7 @@ import services
 from openpyxl import load_workbook
 from io import BytesIO
 from models import Operacao, Colaborador
+from schemas import ResetDBRequest
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -415,10 +417,24 @@ def test_endpoint(db: Session = Depends(get_db)):
 
 
 @router.post("/reset-db")
-def reset_database(db: Session = Depends(get_db)):
-    """Limpa todas as operações e colaboradores do banco (cuidado!)"""
+def reset_database(dados: ResetDBRequest, db: Session = Depends(get_db)):
+    """Limpa todas as operações e colaboradores do banco (cuidado!)
+
+    Exige a senha configurada na variável de ambiente ADMIN_RESET_PASSWORD
+    no servidor - nunca fica no código-fonte nem é enviada ao navegador.
+    """
     import logging
     logger = logging.getLogger(__name__)
+
+    senha_correta = os.getenv("ADMIN_RESET_PASSWORD")
+    if not senha_correta:
+        logger.error("ADMIN_RESET_PASSWORD não configurada no servidor")
+        raise HTTPException(status_code=500, detail="Senha de administrador não configurada no servidor")
+
+    if not dados.senha or dados.senha != senha_correta:
+        logger.warning("Tentativa de reset com senha incorreta ou em branco")
+        raise HTTPException(status_code=403, detail="Senha incorreta")
+
     logger.critical("🚨🚨🚨 ENDPOINT /admin/reset-db FOI CHAMADO! LIMPANDO BANCO! 🚨🚨🚨")
     try:
         services.limpar_banco_dados(db)

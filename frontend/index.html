@@ -616,9 +616,10 @@
             </div>
 
             <div class="card">
-                <h2>➕ Registrar Operação (Manual)</h2>
+                <h2 id="op-form-titulo">➕ Registrar Operação (Manual)</h2>
                 <div id="msg-op" class="message"></div>
-                <form onsubmit="criarOperacao(event)">
+                <form onsubmit="salvarOperacao(event)">
+                    <input type="hidden" id="op-edit-id" value="">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
                         <div class="form-group">
                             <label>Data</label>
@@ -649,7 +650,8 @@
                             <input type="number" id="op-qtd-conf" min="0" required>
                         </div>
                     </div>
-                    <button type="submit">Registrar Operação</button>
+                    <button type="submit" id="op-form-submit">Registrar Operação</button>
+                    <button type="button" id="op-form-cancelar" style="display:none; margin-left: var(--space-sm); background: var(--text-secondary);" onclick="cancelarEdicaoOperacao()">Cancelar Edição</button>
                 </form>
             </div>
 
@@ -666,6 +668,7 @@
                                 <th>Itens Sep.</th>
                                 <th>Conferente</th>
                                 <th>Itens Conf.</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -840,40 +843,101 @@
             }
         }
 
-        async function criarOperacao(e) {
+        async function salvarOperacao(e) {
             e.preventDefault();
+            const editId = document.getElementById('op-edit-id').value;
             const data = document.getElementById('op-data').value;
             const pedido = document.getElementById('op-pedido').value;
             const separador_id = parseInt(document.getElementById('op-separador').value);
             const qtd_itens_separados = parseInt(document.getElementById('op-qtd-sep').value);
             const conferente_id = parseInt(document.getElementById('op-conferente').value);
             const qtd_itens_conferidos = parseInt(document.getElementById('op-qtd-conf').value);
+            const payload = { data, pedido, separador_id, qtd_itens_separados, conferente_id, qtd_itens_conferidos };
             try {
-                const res = await fetch(`${API_URL}/operacoes`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data, pedido, separador_id, qtd_itens_separados, conferente_id, qtd_itens_conferidos }) });
-                if (res.ok) { showMessage('msg-op', '✓ Operação registrada!', 'success'); e.target.reset(); loadOperacoes(); refreshFilterOptions(); loadDashboard(); } else {
+                const url = editId ? `${API_URL}/operacoes/${editId}` : `${API_URL}/operacoes`;
+                const method = editId ? 'PUT' : 'POST';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (res.ok) {
+                    showMessage('msg-op', editId ? '✓ Operação atualizada!' : '✓ Operação registrada!', 'success');
+                    if (editId) cancelarEdicaoOperacao(); else e.target.reset();
+                    loadOperacoes(); refreshFilterOptions(); loadDashboard();
+                } else {
                     const err = await res.json();
                     showMessage('msg-op', `✗ ${err.detail}`, 'error');
                 }
             } catch (err) { showMessage('msg-op', '✗ Erro na conexão', 'error'); }
         }
 
+        function editarOperacao(op) {
+            document.getElementById('op-edit-id').value = op.id;
+            document.getElementById('op-data').value = op.data;
+            document.getElementById('op-pedido').value = op.pedido;
+            document.getElementById('op-separador').value = op.separador_id;
+            document.getElementById('op-qtd-sep').value = op.qtd_itens_separados;
+            document.getElementById('op-conferente').value = op.conferente_id;
+            document.getElementById('op-qtd-conf').value = op.qtd_itens_conferidos;
+            document.getElementById('op-form-titulo').textContent = `✏️ Editando Operação #${op.id}`;
+            document.getElementById('op-form-submit').textContent = 'Salvar Alterações';
+            document.getElementById('op-form-cancelar').style.display = 'inline-block';
+            document.getElementById('op-form-titulo').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelarEdicaoOperacao() {
+            document.getElementById('op-edit-id').value = '';
+            document.querySelector('#operacoes form').reset();
+            document.getElementById('op-data').valueAsDate = new Date();
+            document.getElementById('op-form-titulo').textContent = '➕ Registrar Operação (Manual)';
+            document.getElementById('op-form-submit').textContent = 'Registrar Operação';
+            document.getElementById('op-form-cancelar').style.display = 'none';
+        }
+
+        async function excluirOperacao(id) {
+            if (!confirm(`Tem certeza que deseja excluir a operação #${id}? Essa ação não pode ser desfeita.`)) return;
+            try {
+                const res = await fetch(`${API_URL}/operacoes/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showMessage('msg-op', '✓ Operação excluída!', 'success');
+                    loadOperacoes(); refreshFilterOptions(); loadDashboard();
+                } else {
+                    const err = await res.json();
+                    showMessage('msg-op', `✗ ${err.detail || 'Erro ao excluir'}`, 'error');
+                }
+            } catch (err) { showMessage('msg-op', '✗ Erro na conexão', 'error'); }
+        }
+
+        let operacoesCache = [];
+
         async function loadOperacoes() {
             try {
                 const res = await fetch(`${API_URL}/operacoes`);
                 const data = await res.json();
+                operacoesCache = data;
                 const tbody = document.querySelector('#ops-table tbody');
-                tbody.innerHTML = data.map(o => `<tr><td>${o.id}</td><td>${o.data}</td><td>${o.pedido}</td><td>${o.separador_nome}</td><td>${o.qtd_itens_separados}</td><td>${o.conferente_nome}</td><td>${o.qtd_itens_conferidos}</td></tr>`).join('');
+                tbody.innerHTML = data.map(o => `<tr><td>${o.id}</td><td>${o.data}</td><td>${o.pedido}</td><td>${o.separador_nome}</td><td>${o.qtd_itens_separados}</td><td>${o.conferente_nome}</td><td>${o.qtd_itens_conferidos}</td><td><button onclick="editarOperacaoPorId(${o.id})">Editar</button><button class="btn-danger" style="margin-left: var(--space-sm);" onclick="excluirOperacao(${o.id})">Excluir</button></td></tr>`).join('');
             } catch (err) { console.error(err); }
         }
 
+        function editarOperacaoPorId(id) {
+            const op = operacoesCache.find(o => o.id === id);
+            if (op) editarOperacao(op);
+        }
+
         async function resetDatabase() {
-            if (confirm('⚠️ CUIDADO! Isso vai deletar TODOS os colaboradores e operações. Tem certeza?')) {
-                try {
-                    const res = await fetch(`${API_URL}/admin/reset-db`, { method: 'POST' });
-                    const data = await res.json();
-                    if (data.status === 'ok') { alert('✓ Banco limpo com sucesso!'); loadColaboradores(); loadOperacoes(); refreshFilterOptions(); loadDashboard(); } else alert(`✗ Erro: ${data.message}`);
-                } catch (err) { alert('✗ Erro na conexão'); }
-            }
+            if (!confirm('⚠️ CUIDADO! Isso vai deletar TODOS os colaboradores e operações. Tem certeza?')) return;
+
+            const senha = prompt('Digite a senha de administrador para confirmar a limpeza:');
+            if (!senha) return; // cancelado ou em branco - nenhuma ação executada
+
+            try {
+                const res = await fetch(`${API_URL}/admin/reset-db`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ senha }),
+                });
+                if (res.status === 403) { alert('✗ Senha incorreta. Nada foi apagado.'); return; }
+                const data = await res.json();
+                if (res.ok && data.status === 'ok') { alert('✓ Banco limpo com sucesso!'); loadColaboradores(); loadOperacoes(); refreshFilterOptions(); loadDashboard(); } else alert(`✗ Erro: ${data.message || data.detail}`);
+            } catch (err) { alert('✗ Erro na conexão'); }
         }
 
         async function importarExcel(e) {

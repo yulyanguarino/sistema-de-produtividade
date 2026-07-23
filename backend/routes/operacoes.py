@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import date
 from database import get_db
-from schemas import OperacaoCreate, OperacaoRead, OperacaoReadDetalhado
+from schemas import OperacaoCreate, OperacaoUpdate, OperacaoRead, OperacaoReadDetalhado
 import services
 
 router = APIRouter(prefix="/operacoes", tags=["operacoes"])
@@ -56,3 +56,22 @@ def obter_operacao(operacao_id: int, db: Session = Depends(get_db)):
     if not operacao:
         raise HTTPException(status_code=404, detail="Operação não encontrada")
     return operacao
+
+
+@router.put("/{operacao_id}", response_model=OperacaoRead)
+def atualizar_operacao(operacao_id: int, dados: OperacaoUpdate, db: Session = Depends(get_db)):
+    try:
+        operacao = services.atualizar_operacao(db, operacao_id, dados)
+    except services.NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    if not operacao:
+        raise HTTPException(status_code=404, detail="Operação não encontrada")
+    return operacao
+
+
+@router.delete("/{operacao_id}", status_code=204)
+def deletar_operacao(operacao_id: int, db: Session = Depends(get_db)):
+    sucesso = services.deletar_operacao(db, operacao_id)
+    if not sucesso:
+        raise HTTPException(status_code=404, detail="Operação não encontrada")
+    return None

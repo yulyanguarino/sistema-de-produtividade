@@ -8,6 +8,7 @@ from schemas import (
     ColaboradorCreate,
     ColaboradorUpdate,
     OperacaoCreate,
+    OperacaoUpdate,
     IndicadoresRead,
     RankingItem,
     RankingResponse,
@@ -123,11 +124,44 @@ def listar_operacoes(
     if conferente_id:
         query = query.filter(Operacao.conferente_id == conferente_id)
 
-    return query.offset(skip).limit(limit).all()
+    return query.order_by(Operacao.id.desc()).offset(skip).limit(limit).all()
 
 
 def obter_operacao(db: Session, operacao_id: int) -> Optional[Operacao]:
     return db.query(Operacao).filter(Operacao.id == operacao_id).first()
+
+
+def atualizar_operacao(db: Session, operacao_id: int, dados: OperacaoUpdate) -> Optional[Operacao]:
+    operacao = obter_operacao(db, operacao_id)
+    if not operacao:
+        return None
+
+    update_data = dados.model_dump(exclude_unset=True)
+
+    novo_separador_id = update_data.get("separador_id", operacao.separador_id)
+    if not obter_colaborador(db, novo_separador_id):
+        raise NotFoundError(f"Separador com ID {novo_separador_id} não encontrado")
+
+    novo_conferente_id = update_data.get("conferente_id", operacao.conferente_id)
+    if not obter_colaborador(db, novo_conferente_id):
+        raise NotFoundError(f"Conferente com ID {novo_conferente_id} não encontrado")
+
+    for field, value in update_data.items():
+        setattr(operacao, field, value)
+
+    db.commit()
+    db.refresh(operacao)
+    return operacao
+
+
+def deletar_operacao(db: Session, operacao_id: int) -> bool:
+    operacao = obter_operacao(db, operacao_id)
+    if not operacao:
+        return False
+
+    db.delete(operacao)
+    db.commit()
+    return True
 
 
 # ---- Dashboard filtering ----

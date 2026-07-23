@@ -37,6 +37,15 @@ class OperacaoCreate(OperacaoBase):
     pass
 
 
+class OperacaoUpdate(BaseModel):
+    data: Optional[date] = None
+    pedido: Optional[str] = None
+    separador_id: Optional[int] = None
+    qtd_itens_separados: Optional[int] = Field(default=None, ge=0)
+    conferente_id: Optional[int] = None
+    qtd_itens_conferidos: Optional[int] = Field(default=None, ge=0)
+
+
 class OperacaoRead(OperacaoBase):
     id: int
     model_config = ConfigDict(from_attributes=True)
@@ -45,6 +54,11 @@ class OperacaoRead(OperacaoBase):
 class OperacaoReadDetalhado(OperacaoRead):
     separador_nome: str
     conferente_nome: str
+
+
+# ---- Admin ----
+class ResetDBRequest(BaseModel):
+    senha: str
 
 
 # ---- Dashboard ----
