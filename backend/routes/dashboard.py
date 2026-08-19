@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import date
 from database import get_db
-from schemas import DashboardResponse, DashboardFiltrosResponse
+from schemas import DashboardResponse, DashboardFiltrosResponse, ProducaoMensalItem
 import services
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -47,3 +47,13 @@ def obter_dashboard_filtros(
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/producao-mensal/separador/{separador_id}", response_model=list[ProducaoMensalItem])
+def producao_mensal_separador(separador_id: int, db: Session = Depends(get_db)):
+    return services.producao_mensal_separador(db, separador_id)
+
+
+@router.get("/producao-mensal/conferente/{conferente_id}", response_model=list[ProducaoMensalItem])
+def producao_mensal_conferente(conferente_id: int, db: Session = Depends(get_db)):
+    return services.producao_mensal_conferente(db, conferente_id)

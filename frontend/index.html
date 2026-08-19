@@ -759,29 +759,48 @@
 
         function initCharts() {
             Chart.register(ChartDataLabels);
-            const ctxSep = document.getElementById('chart-separadores').getContext('2d');
-            chartSeparadores = new Chart(ctxSep, {
+        }
+
+        function renderBarChart(existingChart, canvasId, labels, data, color, label) {
+            if (existingChart) existingChart.destroy();
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            return new Chart(ctx, {
                 type: 'bar',
-                data: { labels: [], datasets: [{ label: 'Itens Separados', data: [], backgroundColor: '#FF6B00', borderRadius: 4 }] },
-                options: { indexAxis: 'y', responsive: true, layout: { padding: { right: 40 } }, plugins: { legend: { display: false }, datalabels: { color: '#D9E997', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'right', offset: 5 } }, scales: { x: { beginAtZero: true }, y: { ticks: { color: '#D9E997' } } } },
-            });
-            const ctxConf = document.getElementById('chart-conferentes').getContext('2d');
-            chartConferentes = new Chart(ctxConf, {
-                type: 'bar',
-                data: { labels: [], datasets: [{ label: 'Itens Conferidos', data: [], backgroundColor: '#2ECC71', borderRadius: 4 }] },
+                data: { labels, datasets: [{ label, data, backgroundColor: color, borderRadius: 4 }] },
                 options: { indexAxis: 'y', responsive: true, layout: { padding: { right: 40 } }, plugins: { legend: { display: false }, datalabels: { color: '#D9E997', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'right', offset: 5 } }, scales: { x: { beginAtZero: true }, y: { ticks: { color: '#D9E997' } } } },
             });
         }
 
-        function updateCharts(data) {
-            const sep = data.ranking.separadores;
-            chartSeparadores.data.labels = sep.map(r => r.colaborador_nome);
-            chartSeparadores.data.datasets[0].data = sep.map(r => r.qtd_itens);
-            chartSeparadores.update();
-            const conf = data.ranking.conferentes;
-            chartConferentes.data.labels = conf.map(r => r.colaborador_nome);
-            chartConferentes.data.datasets[0].data = conf.map(r => r.qtd_itens);
-            chartConferentes.update();
+        function renderLineChart(existingChart, canvasId, labels, data, color, label) {
+            if (existingChart) existingChart.destroy();
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            return new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets: [{ label, data, borderColor: color, backgroundColor: color, tension: 0.3, pointRadius: 4, pointBackgroundColor: color, fill: false }] },
+                options: { responsive: true, plugins: { legend: { display: false }, datalabels: { color: '#D9E997', font: { weight: 'bold', size: 11 }, align: 'top' } }, scales: { x: { ticks: { color: '#D9E997' } }, y: { beginAtZero: true, ticks: { color: '#D9E997' } } } },
+            });
+        }
+
+        async function updateCharts(data) {
+            const semFiltroDeTempo = !filtroState.mes && !filtroState.dia;
+
+            if (semFiltroDeTempo && filtroState.separador_id) {
+                const res = await fetch(`${API_URL}/dashboard/producao-mensal/separador/${filtroState.separador_id}`);
+                const mensal = await res.json();
+                chartSeparadores = renderLineChart(chartSeparadores, 'chart-separadores', mensal.map(m => formatMes(m.mes)), mensal.map(m => m.qtd_itens), '#FF6B00', 'Itens Separados por Mês');
+            } else {
+                const sep = data.ranking.separadores;
+                chartSeparadores = renderBarChart(chartSeparadores, 'chart-separadores', sep.map(r => r.colaborador_nome), sep.map(r => r.qtd_itens), '#FF6B00', 'Itens Separados');
+            }
+
+            if (semFiltroDeTempo && filtroState.conferente_id) {
+                const res = await fetch(`${API_URL}/dashboard/producao-mensal/conferente/${filtroState.conferente_id}`);
+                const mensal = await res.json();
+                chartConferentes = renderLineChart(chartConferentes, 'chart-conferentes', mensal.map(m => formatMes(m.mes)), mensal.map(m => m.qtd_itens), '#2ECC71', 'Itens Conferidos por Mês');
+            } else {
+                const conf = data.ranking.conferentes;
+                chartConferentes = renderBarChart(chartConferentes, 'chart-conferentes', conf.map(r => r.colaborador_nome), conf.map(r => r.qtd_itens), '#2ECC71', 'Itens Conferidos');
+            }
         }
 
         async function loadDashboard() {
@@ -799,7 +818,7 @@
             document.getElementById('ranking-separadores').innerHTML = sepHtml || '<p style="color:var(--text-secondary)">Sem dados</p>';
             const confHtml = data.ranking.conferentes.map((r, i) => `<div class="ranking-item"><div class="ranking-pos">#${i + 1}</div><div class="ranking-name">${r.colaborador_nome}</div><div class="ranking-stats">${r.qtd_pedidos} pedidos • ${r.qtd_itens} itens</div></div>`).join('');
             document.getElementById('ranking-conferentes').innerHTML = confHtml || '<p style="color:var(--text-secondary)">Sem dados</p>';
-            updateCharts(data);
+            await updateCharts(data);
         }
 
         async function criarColaborador(e) {

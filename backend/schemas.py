@@ -93,6 +93,12 @@ class ColaboradorFiltroItem(BaseModel):
     nome: str
 
 
+class ProducaoMensalItem(BaseModel):
+    mes: str
+    qtd_pedidos: int
+    qtd_itens: int
+
+
 class DashboardFiltrosResponse(BaseModel):
     meses: list[str]
     dias: list[date]

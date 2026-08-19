@@ -15,6 +15,7 @@ from schemas import (
     DashboardResponse,
     ColaboradorFiltroItem,
     DashboardFiltrosResponse,
+    ProducaoMensalItem,
 )
 
 
@@ -318,6 +319,33 @@ def calcular_ranking_conferentes(
         )
         for r in results
     ]
+
+
+def _producao_mensal(db: Session, id_column, qtd_column, colaborador_id: int) -> list[ProducaoMensalItem]:
+    mes_expr = func.to_char(Operacao.data, "YYYY-MM").label("mes")
+    rows = (
+        db.query(
+            mes_expr,
+            func.count(Operacao.id),
+            func.coalesce(func.sum(qtd_column), 0),
+        )
+        .filter(id_column == colaborador_id)
+        .group_by(mes_expr)
+        .order_by(mes_expr)
+        .all()
+    )
+    return [
+        ProducaoMensalItem(mes=r[0], qtd_pedidos=r[1], qtd_itens=int(r[2] or 0))
+        for r in rows
+    ]
+
+
+def producao_mensal_separador(db: Session, separador_id: int) -> list[ProducaoMensalItem]:
+    return _producao_mensal(db, Operacao.separador_id, Operacao.qtd_itens_separados, separador_id)
+
+
+def producao_mensal_conferente(db: Session, conferente_id: int) -> list[ProducaoMensalItem]:
+    return _producao_mensal(db, Operacao.conferente_id, Operacao.qtd_itens_conferidos, conferente_id)
 
 
 # ---- Dashboard Filters (Cascading) ----
