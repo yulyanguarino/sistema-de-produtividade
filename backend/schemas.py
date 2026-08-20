@@ -82,6 +82,12 @@ class RankingResponse(BaseModel):
     conferentes: list[RankingItem]
 
 
+class DistribuicaoResponse(BaseModel):
+    separadores: list[RankingItem]
+    conferentes: list[RankingItem]
+    total: list[RankingItem]
+
+
 class DashboardResponse(BaseModel):
     indicadores: IndicadoresRead
     ranking: RankingResponse

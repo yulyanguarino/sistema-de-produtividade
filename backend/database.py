@@ -1,7 +1,13 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from dotenv import load_dotenv
 import os
+
+# Carrega backend/.env para o ambiente local (localhost:8000). Em produção
+# (Render) as variáveis já vêm do painel, então isso não tem efeito lá -
+# load_dotenv() não sobrescreve variáveis já definidas no processo.
+load_dotenv()
 
 
 class Settings(BaseSettings):

@@ -1,5 +1,5 @@
 import sys
-from sqlalchemy import func, desc, asc
+from sqlalchemy import func, desc, asc, case, or_
 from sqlalchemy.orm import Session
 from datetime import date, datetime
 from typing import Optional
@@ -321,6 +321,60 @@ def calcular_ranking_conferentes(
     ]
 
 
+def calcular_ranking_total(
+    db: Session,
+    dia: Optional[date] = None,
+    mes: Optional[str] = None,
+    periodo_inicio: Optional[date] = None,
+    periodo_fim: Optional[date] = None,
+    colaborador_id: Optional[int] = None,
+    limit: Optional[int] = None,
+) -> list[RankingItem]:
+    """Ranking combinado: produção (como separador) + conferência (como
+    conferente) somadas por colaborador, respeitando os filtros de data.
+    Com colaborador_id, retorna só aquele colaborador (produção + conferência dele)."""
+    sep_query = db.query(
+        Colaborador.id,
+        Colaborador.nome,
+        func.count(Operacao.id),
+        func.coalesce(func.sum(Operacao.qtd_itens_separados), 0),
+    ).join(Operacao, Operacao.separador_id == Colaborador.id)
+    sep_query = _aplicar_filtros_data(sep_query, dia, mes, periodo_inicio, periodo_fim)
+    if colaborador_id:
+        sep_query = sep_query.filter(Operacao.separador_id == colaborador_id)
+    sep_query = sep_query.group_by(Colaborador.id, Colaborador.nome)
+
+    conf_query = db.query(
+        Colaborador.id,
+        Colaborador.nome,
+        func.count(Operacao.id),
+        func.coalesce(func.sum(Operacao.qtd_itens_conferidos), 0),
+    ).join(Operacao, Operacao.conferente_id == Colaborador.id)
+    conf_query = _aplicar_filtros_data(conf_query, dia, mes, periodo_inicio, periodo_fim)
+    if colaborador_id:
+        conf_query = conf_query.filter(Operacao.conferente_id == colaborador_id)
+    conf_query = conf_query.group_by(Colaborador.id, Colaborador.nome)
+
+    totais: dict[int, list] = {}
+    for cid, nome, pedidos, itens in sep_query.all():
+        totais[cid] = [nome, pedidos, int(itens or 0)]
+    for cid, nome, pedidos, itens in conf_query.all():
+        if cid in totais:
+            totais[cid][1] += pedidos
+            totais[cid][2] += int(itens or 0)
+        else:
+            totais[cid] = [nome, pedidos, int(itens or 0)]
+
+    items = [
+        RankingItem(colaborador_id=cid, colaborador_nome=nome, qtd_pedidos=pedidos, qtd_itens=itens)
+        for cid, (nome, pedidos, itens) in totais.items()
+    ]
+    items.sort(key=lambda r: r.qtd_itens, reverse=True)
+    if limit:
+        items = items[:limit]
+    return items
+
+
 def _producao_mensal(db: Session, id_column, qtd_column, colaborador_id: int) -> list[ProducaoMensalItem]:
     mes_expr = func.to_char(Operacao.data, "YYYY-MM").label("mes")
     rows = (
@@ -346,6 +400,33 @@ def producao_mensal_separador(db: Session, separador_id: int) -> list[ProducaoMe
 
 def producao_mensal_conferente(db: Session, conferente_id: int) -> list[ProducaoMensalItem]:
     return _producao_mensal(db, Operacao.conferente_id, Operacao.qtd_itens_conferidos, conferente_id)
+
+
+def resultado_mensal_colaborador(db: Session, colaborador_id: Optional[int] = None) -> list[ProducaoMensalItem]:
+    """Resultado final por mês: produção (como separador) + conferência (como
+    conferente) somadas. Sem colaborador_id, soma de todo mundo (empresa)."""
+    mes_expr = func.to_char(Operacao.data, "YYYY-MM").label("mes")
+
+    if colaborador_id:
+        itens_sep = func.sum(case((Operacao.separador_id == colaborador_id, Operacao.qtd_itens_separados), else_=0))
+        itens_conf = func.sum(case((Operacao.conferente_id == colaborador_id, Operacao.qtd_itens_conferidos), else_=0))
+        rows = (
+            db.query(mes_expr, func.count(func.distinct(Operacao.id)), itens_sep + itens_conf)
+            .filter(or_(Operacao.separador_id == colaborador_id, Operacao.conferente_id == colaborador_id))
+            .group_by(mes_expr)
+            .order_by(mes_expr)
+            .all()
+        )
+    else:
+        total_itens = func.coalesce(func.sum(Operacao.qtd_itens_separados), 0) + func.coalesce(func.sum(Operacao.qtd_itens_conferidos), 0)
+        rows = (
+            db.query(mes_expr, func.count(Operacao.id), total_itens)
+            .group_by(mes_expr)
+            .order_by(mes_expr)
+            .all()
+        )
+
+    return [ProducaoMensalItem(mes=r[0], qtd_pedidos=int(r[1] or 0), qtd_itens=int(r[2] or 0)) for r in rows]
 
 
 # ---- Dashboard Filters (Cascading) ----
