@@ -884,16 +884,21 @@
             const res = await fetch(`${API_URL}/dashboard/distribuicao?${params}`);
             const data = await res.json();
 
-            // Total geral de itens separados da empresa no período, SEM filtro
-            // de colaborador (o endpoint /distribuicao já ignora separador_id/
-            // conferente_id de propósito) - é o denominador fixo das 3 listas.
-            const totalGeralFixo = data.separadores.reduce((soma, r) => soma + r.qtd_itens, 0);
+            // Totais gerais da empresa no período, SEM filtro de colaborador
+            // (o endpoint /distribuicao já ignora separador_id/conferente_id
+            // de propósito). Separação e Conferência usam seu próprio total
+            // como denominador; o Total (que soma as duas pontas de cada
+            // colaborador) precisa dividir pela soma dos dois totais gerais,
+            // senão as porcentagens saem dobradas.
+            const totalSeparadosGeral = data.separadores.reduce((soma, r) => soma + r.qtd_itens, 0);
+            const totalConferidosGeral = data.conferentes.reduce((soma, r) => soma + r.qtd_itens, 0);
+            const totalCombinadoGeral = totalSeparadosGeral + totalConferidosGeral;
 
             const colaboradorId = filtroState.separador_id || filtroState.conferente_id || '';
 
-            renderPercentList('lista-pizza-separadores', destacarColaborador(data.separadores, colaboradorId, totalGeralFixo), totalGeralFixo);
-            renderPercentList('lista-pizza-conferentes', destacarColaborador(data.conferentes, colaboradorId, totalGeralFixo), totalGeralFixo);
-            renderPercentList('lista-pizza-total', destacarColaborador(data.total, colaboradorId, totalGeralFixo), totalGeralFixo);
+            renderPercentList('lista-pizza-separadores', destacarColaborador(data.separadores, colaboradorId, totalSeparadosGeral), totalSeparadosGeral);
+            renderPercentList('lista-pizza-conferentes', destacarColaborador(data.conferentes, colaboradorId, totalConferidosGeral), totalConferidosGeral);
+            renderPercentList('lista-pizza-total', destacarColaborador(data.total, colaboradorId, totalCombinadoGeral), totalCombinadoGeral);
 
             const nomeColaborador = colaboradorId
                 ? (data.separadores.find(r => r.colaborador_id == colaboradorId) || data.conferentes.find(r => r.colaborador_id == colaboradorId) || {}).colaborador_nome
