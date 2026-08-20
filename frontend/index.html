@@ -375,6 +375,12 @@
             margin-bottom: var(--space-xl);
         }
 
+        .pizza-stack {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
         .message {
             padding: var(--space-lg);
             border-radius: var(--radius-lg);
@@ -543,26 +549,23 @@
                             <p id="resultado-final-legenda" style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-base); text-align: center;">Produção + conferência somadas, por mês (todos os colaboradores)</p>
                             <canvas id="chart-resultado-final" height="260"></canvas>
                         </div>
-                    </div>
 
-                    <div class="card">
-                        <h2>🥧 Distribuição por Colaborador (%)</h2>
-                        <p id="pizza-legenda" style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-lg); text-align: center;">Participação de cada colaborador no total do período filtrado</p>
-                        <div class="charts-grid">
-                            <div>
-                                <h3 style="text-align:center; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-md);">Separação</h3>
-                                <canvas id="chart-pizza-separadores" height="240"></canvas>
-                                <p id="chart-pizza-separadores-vazio" style="display:none; text-align:center; color:var(--text-secondary); padding: var(--space-2xl) 0;">Sem dados de separação para este filtro</p>
-                            </div>
-                            <div>
-                                <h3 style="text-align:center; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-md);">Conferência</h3>
-                                <canvas id="chart-pizza-conferentes" height="240"></canvas>
-                                <p id="chart-pizza-conferentes-vazio" style="display:none; text-align:center; color:var(--text-secondary); padding: var(--space-2xl) 0;">Sem dados de conferência para este filtro</p>
-                            </div>
-                            <div>
-                                <h3 style="text-align:center; font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-md);">Total (Produção + Conferência)</h3>
-                                <canvas id="chart-pizza-total" height="240"></canvas>
-                                <p id="chart-pizza-total-vazio" style="display:none; text-align:center; color:var(--text-secondary); padding: var(--space-2xl) 0;">Sem dados para este filtro</p>
+                        <div class="card">
+                            <h2>🥧 Distribuição por Colaborador (%)</h2>
+                            <p id="pizza-legenda" style="font-size: var(--font-size-sm); color: var(--text-secondary); margin-bottom: var(--space-lg); text-align: center;">Participação de cada colaborador no total do período filtrado</p>
+                            <div class="pizza-stack">
+                                <div>
+                                    <h3 style="text-align:center; font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--space-sm);">Separação</h3>
+                                    <div id="lista-pizza-separadores"></div>
+                                </div>
+                                <div>
+                                    <h3 style="text-align:center; font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--space-sm);">Conferência</h3>
+                                    <div id="lista-pizza-conferentes"></div>
+                                </div>
+                                <div>
+                                    <h3 style="text-align:center; font-size: var(--font-size-xs); color: var(--text-secondary); margin-bottom: var(--space-sm);">Total (Produção + Conferência)</h3>
+                                    <div id="lista-pizza-total"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -712,9 +715,8 @@
             ? 'http://localhost:8000'
             : 'https://sistema-de-produtividade-backend.onrender.com';
         let chartSeparadores, chartConferentes, chartResultadoFinal;
-        let chartPizzaSeparadores, chartPizzaConferentes, chartPizzaTotal;
-        const CORES_COLABORADOR = ['#FF6B00', '#2ECC71', '#5A8BFA', '#F1C40F', '#E74C3C', '#9B59B6', '#1ABC9C', '#E67E22', '#34495E', '#95A5A6'];
-        function corColaborador(id) { return id < 0 ? '#605E5C' : CORES_COLABORADOR[id % CORES_COLABORADOR.length]; }
+        const CORES_COLABORADOR = ['#FF6B00', '#2ECC71', '#5A8BFA', '#F1C40F', '#E74C3C', '#9B59B6', '#1ABC9C', '#E67E22', '#FF3EA5', '#00D9FF'];
+        function corColaborador(id) { return id < 0 ? '#8C8884' : CORES_COLABORADOR[id % CORES_COLABORADOR.length]; }
 
         // Quando um colaborador específico está selecionado no filtro, mostra
         // a fatia dele contra "Outros" (o resto de todo mundo) - assim dá pra
@@ -852,39 +854,29 @@
             });
         }
 
-        function renderPieChart(existingChart, canvasId, items, totalGeralFixo) {
-            const canvas = document.getElementById(canvasId);
-            const vazioEl = document.getElementById(`${canvasId}-vazio`);
-
-            if (existingChart) existingChart.destroy();
+        function renderPercentList(containerId, items, totalGeralFixo) {
+            const container = document.getElementById(containerId);
 
             if (!items.length) {
-                canvas.style.display = 'none';
-                vazioEl.style.display = 'block';
-                return null;
+                container.innerHTML = '<p style="text-align:center; color:var(--text-secondary); font-size: var(--font-size-xs); padding: var(--space-md) 0;">Sem dados para este filtro</p>';
+                return;
             }
-            canvas.style.display = 'block';
-            vazioEl.style.display = 'none';
 
-            const ctx = canvas.getContext('2d');
-            return new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: items.map(r => r.colaborador_nome),
-                    datasets: [{ data: items.map(r => r.qtd_itens), backgroundColor: items.map(r => corColaborador(r.colaborador_id)), borderColor: '#1E1B1A', borderWidth: 2 }],
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#D9E997', font: { size: 11 }, boxWidth: 12, padding: 10 } },
-                        datalabels: {
-                            color: '#fff',
-                            font: { weight: 'bold', size: 11 },
-                            formatter: (value) => totalGeralFixo ? `${((value / totalGeralFixo) * 100).toFixed(1)}%` : '0%',
-                        },
-                    },
-                },
-            });
+            const ordenados = [...items].sort((a, b) => b.qtd_itens - a.qtd_itens);
+            container.innerHTML = ordenados.map(r => {
+                // 2 casas decimais - com 1 só, participações bem pequenas (mas
+                // reais, tipo 14/29349 = 0,048%) arredondavam pra "0.0%" e
+                // pareciam zero.
+                const pct = totalGeralFixo ? ((r.qtd_itens / totalGeralFixo) * 100).toFixed(2) : '0.00';
+                const cor = corColaborador(r.colaborador_id);
+                return `<div style="display:flex; align-items:center; justify-content:space-between; padding: var(--space-sm) 0; border-bottom: 1px solid var(--border-subtle);">
+                    <span style="display:flex; align-items:center; gap: var(--space-sm); font-size: var(--font-size-sm); color: var(--text);">
+                        <span style="display:inline-block; width:10px; height:10px; border-radius:2px; background:${cor}; flex-shrink:0;"></span>
+                        ${r.colaborador_nome}
+                    </span>
+                    <span style="font-weight:600; color: var(--text-secondary); font-size: var(--font-size-sm);">${pct}% <span style="color:var(--text-secondary); font-weight:400; font-size: var(--font-size-xs);">(${r.qtd_itens.toLocaleString('pt-BR')} itens)</span></span>
+                </div>`;
+            }).join('');
         }
 
         async function updatePieCharts() {
@@ -894,14 +886,14 @@
 
             // Total geral de itens separados da empresa no período, SEM filtro
             // de colaborador (o endpoint /distribuicao já ignora separador_id/
-            // conferente_id de propósito) - é o denominador fixo das 3 pizzas.
+            // conferente_id de propósito) - é o denominador fixo das 3 listas.
             const totalGeralFixo = data.separadores.reduce((soma, r) => soma + r.qtd_itens, 0);
 
             const colaboradorId = filtroState.separador_id || filtroState.conferente_id || '';
 
-            chartPizzaSeparadores = renderPieChart(chartPizzaSeparadores, 'chart-pizza-separadores', destacarColaborador(data.separadores, colaboradorId, totalGeralFixo), totalGeralFixo);
-            chartPizzaConferentes = renderPieChart(chartPizzaConferentes, 'chart-pizza-conferentes', destacarColaborador(data.conferentes, colaboradorId, totalGeralFixo), totalGeralFixo);
-            chartPizzaTotal = renderPieChart(chartPizzaTotal, 'chart-pizza-total', destacarColaborador(data.total, colaboradorId, totalGeralFixo), totalGeralFixo);
+            renderPercentList('lista-pizza-separadores', destacarColaborador(data.separadores, colaboradorId, totalGeralFixo), totalGeralFixo);
+            renderPercentList('lista-pizza-conferentes', destacarColaborador(data.conferentes, colaboradorId, totalGeralFixo), totalGeralFixo);
+            renderPercentList('lista-pizza-total', destacarColaborador(data.total, colaboradorId, totalGeralFixo), totalGeralFixo);
 
             const nomeColaborador = colaboradorId
                 ? (data.separadores.find(r => r.colaborador_id == colaboradorId) || data.conferentes.find(r => r.colaborador_id == colaboradorId) || {}).colaborador_nome
