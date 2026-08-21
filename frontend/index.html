@@ -4,55 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Produtividade Operacional</title>
-    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            /* Design System: Dark Orange Analytics Dashboard */
+            /* Design System 04 - Tidimar (marca oficial da empresa) */
             /* Backgrounds */
-            --bg-main: #121010;
-            --bg-sidebar: #1E1B1A;
-            --bg-card: #1E1B1A;
-            --bg-card-hover: #282422;
-            --bg-input: #171514;
-            --border-subtle: #2D2826;
+            --bg-main: #040F0D;
+            --bg-shell: #0C231F;
+            --bg-sidebar: #0C231F;
+            --bg-card: #0C231F;
+            --bg-card-hover: #123530;
+            --bg-content: #071815;
+            --bg-input: #0C231F;
+            --border-subtle: #1F4842;
 
-            /* Primary Color - Orange */
-            --primary: #FF6B00;
-            --primary-hover: #E05E00;
-            --primary-muted: #331B0A;
-            --primary-border: #803800;
-            --primary-glow: rgba(255, 107, 0, 0.25);
+            /* Primary Color - Verde-lima (acento unico) */
+            --primary: #8FC63E;
+            --primary-hover: #5E8C28;
+            --primary-dark: #5E8C28;
+            --primary-light: #B4E06B;
+            --primary-muted: #16332B;
+            --primary-border: #5E8C28;
+            --primary-glow: rgba(143, 198, 62, 0.28);
+            --brand-accent: var(--primary);
+            --accent-gradient: linear-gradient(90deg, #5E8C28, #8FC63E, #B4E06B);
 
-            /* Accent Colors */
+            /* Cores semanticas - mantidas independentes do acento */
             --accent-orange: #FF6B00;
             --accent-orange-bg: #331B0A;
             --accent-pink: #FF6B00;
             --accent-blue: #FF6B00;
             --color-success: #2ECC71;
             --color-danger: #FF4D4D;
-            --chart-gray: #605E5C;
-            --chart-light: #D9D9D9;
+            --chart-gray: #7FA69E;
+            --chart-light: #EAF3F0;
 
             /* Text Colors */
-            --text-primary: #FFFFFF;
-            --text-secondary: #D9E997;
-            --text-muted: #D9E997;
+            --text-primary: #EAF3F0;
+            --text-secondary: #7FA69E;
+            --text-muted: #7FA69E;
+
+            /* Tipografia */
+            --font-heading: 'Playfair Display', Georgia, serif;
+            --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 
             /* Legacy compatibility (mapped to new palette) */
             --glass-bg-primary: var(--bg-card);
             --glass-bg-secondary: var(--bg-card-hover);
             --glass-border: var(--border-subtle);
             --glass-border-subtle: var(--border-subtle);
-            --bg-ambient-gradient: linear-gradient(135deg, #121010, #1E1B1A);
+            --bg-ambient-gradient: var(--bg-main);
             --blur-glass: blur(0px);
             --blur-glass-heavy: blur(0px);
-            --shadow-glass-card: 0 8px 32px rgba(0, 0, 0, 0.5);
+            --shadow-glass-card: 0 2px 8px rgba(0, 0, 0, 0.6);
             --shadow-glass-hover: 0 12px 40px rgba(0, 0, 0, 0.6);
-            --shadow-accent-glow: 0 4px 14px rgba(255, 107, 0, 0.2);
+            --shadow-accent-glow: 0 4px 14px var(--primary-glow);
 
             --background: var(--bg-card);
             --surface: var(--bg-card-hover);
@@ -61,7 +73,7 @@
 
             --primary-50: var(--primary-glow);
             --primary-500: var(--primary);
-            --primary-900: var(--bg-card);
+            --primary-900: var(--primary-hover);
             --neutral-50: var(--bg-card-hover);
             --neutral-500: var(--text-secondary);
             --neutral-900: var(--bg-main);
@@ -83,7 +95,6 @@
             --space-2xl: 2rem;
             --space-3xl: 3rem;
             --space-4xl: 4rem;
-            --font-family: 'General Sans', system-ui, -apple-system, sans-serif;
             --font-size-xs: 0.75rem;
             --font-size-sm: 0.875rem;
             --font-size-base: 1rem;
@@ -109,31 +120,32 @@
             --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --background: #111827;
-                --surface: #1f2937;
-                --text: #f9fafb;
-                --text-secondary: #9ca3af;
-                --border: #374151;
-                --primary: #3b82f6;
-            }
-        }
-
         @media (prefers-reduced-motion: reduce) {
             * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
         }
 
         body {
             font-family: var(--font-family);
-            background: var(--bg-ambient-gradient);
+            background: var(--bg-main);
             color: var(--text);
             font-size: var(--font-size-base);
             line-height: 1.6;
-            padding: var(--space-lg);
+            padding: 14px;
         }
 
-        .container { max-width: 1400px; margin: 0 auto; }
+        /* A moldura arredondada: o app inteiro flutua sobre um fundo de
+           pagina mais escuro (--bg-main), nao so' os cards. */
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+            min-height: calc(100vh - 28px);
+            border-radius: 18px;
+            border: 1px solid var(--border-subtle);
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .6);
+            background: var(--bg-shell);
+            padding: var(--space-lg);
+        }
 
         header {
             background: var(--background);
@@ -142,9 +154,20 @@
             margin-bottom: var(--space-xl);
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        header img.logo-icone {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-md);
+            flex-shrink: 0;
         }
 
         header h1 {
+            font-family: var(--font-heading);
             color: var(--text);
             margin-bottom: var(--space-sm);
             font-size: var(--font-size-3xl);
@@ -182,21 +205,34 @@
         }
 
         .tab-btn:hover {
-            background: var(--primary);
-            color: white;
+            border-color: var(--primary);
+            color: var(--primary);
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
-            border-color: var(--primary);
         }
 
         .tab-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
+            background: var(--accent-gradient);
+            color: var(--bg-content);
+            border-color: transparent;
+            font-weight: 700;
         }
 
         .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content.active {
+            display: block;
+            background: var(--bg-content);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            position: relative;
+            background-image: url('img/logo-marca-dagua.png');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: min(46vh, 440px) min(46vh, 440px);
+            background-attachment: fixed;
+        }
+
+        .tab-content.active > * { position: relative; z-index: 1; }
 
         .dashboard-layout {
             display: grid;
@@ -227,10 +263,8 @@
 
         .card {
             background: var(--glass-bg-primary);
-            backdrop-filter: var(--blur-glass);
-            -webkit-backdrop-filter: var(--blur-glass);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
+            border-radius: 16px;
             box-shadow: var(--shadow-glass-card);
             padding: var(--space-xl);
             overflow: hidden;
@@ -239,14 +273,15 @@
         }
 
         .card:hover {
-            box-shadow: var(--shadow-xl);
-            transform: translateY(-4px);
-            border-color: var(--border);
+            box-shadow: var(--shadow-glass-hover), var(--shadow-accent-glow);
+            transform: translateY(-3px);
+            border-color: var(--primary);
         }
 
         .card h2 {
+            font-family: var(--font-heading);
             font-size: var(--font-size-xl);
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text);
             margin-bottom: var(--space-lg);
         }
@@ -278,7 +313,7 @@
         input:focus, select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, .1), 0 0 0 6px var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
         }
 
         input:disabled, select:disabled {
@@ -290,12 +325,12 @@
 
         button, .btn {
             font-family: var(--font-family);
-            background: var(--primary);
-            color: white;
+            background: var(--accent-gradient);
+            color: var(--bg-content);
             padding: 0.75rem 1.5rem;
             border: none;
             border-radius: var(--radius-full);
-            font-weight: 600;
+            font-weight: 700;
             font-size: var(--font-size-sm);
             cursor: pointer;
             box-shadow: var(--shadow-md);
@@ -303,9 +338,8 @@
         }
 
         button:hover, .btn:hover {
-            background: var(--primary-900);
             transform: translateY(-2px);
-            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 12px 28px var(--primary-glow);
         }
 
         button:active, .btn:active {
@@ -315,16 +349,32 @@
 
         button:focus-visible, .btn:focus-visible {
             outline: none;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, .1), 0 0 0 6px var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow), 0 0 0 6px var(--primary);
+        }
+
+        /* Botao secundario (outline) - usado quando um botao nao deve competir
+           visualmente com a acao primaria da tela (ex: cancelar edicao). */
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: none;
         }
 
         .btn-danger {
             background: var(--error);
+            color: white;
         }
 
         .btn-danger:hover {
             background: var(--error-dark);
-            box-shadow: 0 20px 40px rgba(239, 68, 68, 0.3);
+            box-shadow: 0 12px 28px rgba(255, 77, 77, 0.3);
         }
 
         .dashboard {
@@ -335,20 +385,17 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, rgba(106, 77, 250, 0.1), rgba(90, 139, 250, 0.1));
-            backdrop-filter: var(--blur-glass);
-            -webkit-backdrop-filter: var(--blur-glass);
+            background: var(--bg-card);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: var(--shadow-glass-card);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .6);
             padding: var(--space-xl);
             text-align: center;
-            transform-style: preserve-3d;
             transition: transform var(--duration-base) var(--ease-smooth), box-shadow var(--duration-base) var(--ease-smooth), border-color var(--duration-base) var(--ease-smooth);
         }
 
         .stat-card:hover {
-            transform: perspective(600px) rotateX(2deg) rotateY(-2deg) translateY(-4px);
+            transform: translateY(-3px);
             box-shadow: var(--shadow-glass-hover), var(--shadow-accent-glow);
             border-color: var(--brand-accent);
         }
@@ -375,6 +422,12 @@
             margin-bottom: var(--space-xl);
         }
 
+        /* Cards de grafico um pouco translucidos, pra marca d'agua central
+           do fundo aparecer por tras deles (pedido do usuario). */
+        .charts-grid .card {
+            background: rgba(12, 35, 31, 0.88);
+        }
+
         .pizza-stack {
             display: flex;
             flex-direction: column;
@@ -389,10 +442,17 @@
         }
 
         .message.show { display: block; }
-        .message.success { background: var(--success-light); color: var(--success-dark); border: 1px solid var(--success); }
-        .message.error { background: var(--error-light); color: var(--error-dark); border: 1px solid var(--error); }
+        .message.success { background: rgba(46, 204, 113, 0.12); color: #2ECC71; border: 1px solid rgba(46, 204, 113, 0.4); }
+        .message.error { background: rgba(255, 77, 77, 0.12); color: #FF4D4D; border: 1px solid rgba(255, 77, 77, 0.4); }
 
-        .list-container { overflow-x: auto; }
+        .list-container {
+            overflow-x: auto;
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .6);
+            max-height: 520px;
+            overflow-y: auto;
+        }
 
         table {
             width: 100%;
@@ -407,6 +467,8 @@
             font-weight: 600;
             color: var(--primary);
             border-bottom: 2px solid var(--primary);
+            position: sticky;
+            top: 0;
         }
 
         td {
@@ -425,15 +487,15 @@
         }
 
         .badge.active {
-            background: var(--success-light);
-            color: var(--success-dark);
-            border: 1px solid var(--success);
+            background: rgba(46, 204, 113, 0.12);
+            color: #2ECC71;
+            border: 1px solid rgba(46, 204, 113, 0.4);
         }
 
         .badge.inactive {
-            background: var(--error-light);
-            color: var(--error-dark);
-            border: 1px solid var(--error);
+            background: rgba(255, 77, 77, 0.12);
+            color: #FF4D4D;
+            border: 1px solid rgba(255, 77, 77, 0.4);
         }
 
         .ranking-item {
@@ -475,8 +537,11 @@
 <body>
     <div class="container">
         <header>
-            <h1>📦 Sistema de Produtividade Operacional</h1>
-            <p>Registro de separação e conferência de pedidos</p>
+            <img class="logo-icone" src="img/logo-icone.png" alt="Tidimar Hospitalar">
+            <div>
+                <h1>Sistema de Produtividade Operacional</h1>
+                <p>Registro de separação e conferência de pedidos</p>
+            </div>
         </header>
 
         <div class="tabs">
@@ -681,7 +746,7 @@
                         </div>
                     </div>
                     <button type="submit" id="op-form-submit">Registrar Operação</button>
-                    <button type="button" id="op-form-cancelar" style="display:none; margin-left: var(--space-sm); background: var(--text-secondary);" onclick="cancelarEdicaoOperacao()">Cancelar Edição</button>
+                    <button type="button" id="op-form-cancelar" class="btn-secondary" style="display:none; margin-left: var(--space-sm);" onclick="cancelarEdicaoOperacao()">Cancelar Edição</button>
                 </form>
             </div>
 
@@ -815,6 +880,11 @@
 
         function initCharts() {
             Chart.register(ChartDataLabels);
+            // Cores globais dos graficos (Chart.js nao le variaveis CSS sozinho)
+            Chart.defaults.color = '#7FA69E';
+            Chart.defaults.borderColor = '#1F4842';
+            // Remove o quadriculado (linhas de grade) de todos os graficos
+            Chart.defaults.scale.grid.display = false;
         }
 
         function renderBarChart(existingChart, canvasId, labels, data, color, label) {
@@ -823,7 +893,7 @@
             return new Chart(ctx, {
                 type: 'bar',
                 data: { labels, datasets: [{ label, data, backgroundColor: color, borderRadius: 4 }] },
-                options: { indexAxis: 'y', responsive: true, layout: { padding: { right: 40 } }, plugins: { legend: { display: false }, datalabels: { color: '#D9E997', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'right', offset: 5 } }, scales: { x: { beginAtZero: true }, y: { ticks: { color: '#D9E997' } } } },
+                options: { indexAxis: 'y', responsive: true, layout: { padding: { right: 40 } }, plugins: { legend: { display: false }, datalabels: { color: '#EAF3F0', font: { weight: 'bold', size: 12 }, anchor: 'end', align: 'right', offset: 5 } }, scales: { x: { beginAtZero: true }, y: { ticks: { color: '#7FA69E' } } } },
             });
         }
 
@@ -839,8 +909,8 @@
                     plugins: {
                         legend: { display: false },
                         datalabels: {
-                            color: '#D9E997',
-                            backgroundColor: 'rgba(18, 16, 16, 0.85)',
+                            color: '#EAF3F0',
+                            backgroundColor: 'rgba(7, 24, 21, 0.85)',
                             borderRadius: 4,
                             padding: { top: 3, bottom: 3, left: 6, right: 6 },
                             font: { weight: 'bold', size: 11 },
@@ -849,7 +919,7 @@
                             offset: 8,
                         },
                     },
-                    scales: { x: { offset: true, ticks: { color: '#D9E997' } }, y: { beginAtZero: true, ticks: { color: '#D9E997' } } },
+                    scales: { x: { offset: true, ticks: { color: '#7FA69E' } }, y: { beginAtZero: true, ticks: { color: '#7FA69E' } } },
                 },
             });
         }
@@ -916,26 +986,26 @@
             if (semFiltroDeTempo && filtroState.separador_id) {
                 const res = await fetch(`${API_URL}/dashboard/producao-mensal/separador/${filtroState.separador_id}`);
                 const mensal = await res.json();
-                chartSeparadores = renderLineChart(chartSeparadores, 'chart-separadores', mensal.map(m => formatMes(m.mes)), mensal.map(m => m.qtd_itens), '#FF6B00', 'Itens Separados por Mês');
+                chartSeparadores = renderLineChart(chartSeparadores, 'chart-separadores', mensal.map(m => formatMes(m.mes)), mensal.map(m => m.qtd_itens), '#8FC63E', 'Itens Separados por Mês');
             } else {
                 const sep = data.ranking.separadores;
-                chartSeparadores = renderBarChart(chartSeparadores, 'chart-separadores', sep.map(r => r.colaborador_nome), sep.map(r => r.qtd_itens), '#FF6B00', 'Itens Separados');
+                chartSeparadores = renderBarChart(chartSeparadores, 'chart-separadores', sep.map(r => r.colaborador_nome), sep.map(r => r.qtd_itens), '#8FC63E', 'Itens Separados');
             }
 
             if (semFiltroDeTempo && filtroState.conferente_id) {
                 const res = await fetch(`${API_URL}/dashboard/producao-mensal/conferente/${filtroState.conferente_id}`);
                 const mensal = await res.json();
-                chartConferentes = renderLineChart(chartConferentes, 'chart-conferentes', mensal.map(m => formatMes(m.mes)), mensal.map(m => m.qtd_itens), '#2ECC71', 'Itens Conferidos por Mês');
+                chartConferentes = renderLineChart(chartConferentes, 'chart-conferentes', mensal.map(m => formatMes(m.mes)), mensal.map(m => m.qtd_itens), '#5E8C28', 'Itens Conferidos por Mês');
             } else {
                 const conf = data.ranking.conferentes;
-                chartConferentes = renderBarChart(chartConferentes, 'chart-conferentes', conf.map(r => r.colaborador_nome), conf.map(r => r.qtd_itens), '#2ECC71', 'Itens Conferidos');
+                chartConferentes = renderBarChart(chartConferentes, 'chart-conferentes', conf.map(r => r.colaborador_nome), conf.map(r => r.qtd_itens), '#5E8C28', 'Itens Conferidos');
             }
 
             const colaboradorSelecionado = filtroState.separador_id || filtroState.conferente_id || '';
             const paramsResultado = colaboradorSelecionado ? `?colaborador_id=${colaboradorSelecionado}` : '';
             const resResultado = await fetch(`${API_URL}/dashboard/resultado-mensal${paramsResultado}`);
             const resultadoMensal = await resResultado.json();
-            chartResultadoFinal = renderLineChart(chartResultadoFinal, 'chart-resultado-final', resultadoMensal.map(m => formatMes(m.mes)), resultadoMensal.map(m => m.qtd_itens), '#5A8BFA', 'Resultado Final por Mês');
+            chartResultadoFinal = renderLineChart(chartResultadoFinal, 'chart-resultado-final', resultadoMensal.map(m => formatMes(m.mes)), resultadoMensal.map(m => m.qtd_itens), '#B4E06B', 'Resultado Final por Mês');
             const nomeSelecionado = colaboradorSelecionado
                 ? (data.ranking.separadores.find(r => r.colaborador_id == colaboradorSelecionado) || data.ranking.conferentes.find(r => r.colaborador_id == colaboradorSelecionado) || {}).colaborador_nome
                 : null;
