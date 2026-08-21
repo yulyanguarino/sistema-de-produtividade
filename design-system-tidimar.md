@@ -79,6 +79,22 @@ body {
    precisam ser setadas via `Chart.defaults` e nas `options` de cada gráfico -
    `Chart.defaults.scale.grid.display = false` tira o quadriculado de fundo
    de todos de uma vez.
+5. **`> * { position: relative; z-index: 1 }` é uma armadilha de z-index, e
+   nem é necessário.** A ideia original era "garantir" que o conteúdo do
+   `.tab-content.active` ficasse acima da marca d'água — mas o fundo de um
+   elemento **já pinta atrás do próprio conteúdo por padrão**, sem precisar
+   de z-index nenhum. Essa regra, além de desnecessária, dava
+   `position:relative` + `z-index` a um elemento (ex: `.dashboard-layout`),
+   o que **cria um novo contexto de empilhamento** — qualquer descendente
+   com `position:fixed` (ex: um modal/card "expandido") fica **preso dentro
+   desse contexto**, mesmo escapando do `overflow:hidden` de ancestrais.
+   Resultado real que isso causou aqui: um backdrop de modal (fora desse
+   contexto, no `<body>`) renderizava por cima do modal inteiro (que estava
+   preso lá dentro), bloqueando clique/hover e escurecendo tudo — sem
+   nenhum erro no console, e resistente a mexer em z-index/opacity/timing
+   do próprio modal, porque o problema nunca foi ali. Não recrie esse tipo
+   de regra "de segurança"; se motivo nenhum concreto exigir, não force
+   `position` + `z-index` em containers genéricos.
 
 ## Marca d'água da logo (sem mostrar borda/quadrado do recorte)
 
