@@ -116,6 +116,97 @@ recriar):
    ficou fraco demais pra aparecer atrás dos cards; ajustado depois de ver o
    resultado ao vivo).
 
+Script completo (Python + Pillow — `pip install pillow`), pra copiar direto
+num projeto novo e só ajustar `CROP` e os caminhos:
+
+```python
+from PIL import Image
+import math
+
+# --- ajustar pro projeto novo ---
+LOGO_ORIGINAL = 'logo-original.png'       # arquivo da logo com fundo solido
+CROP = (0, 0, 380, 370)                   # x1, y1, x2, y2 - so' o icone/simbolo, sem o texto do nome
+SAIDA_ICONE = 'img/logo-icone.png'        # selo pequeno, opaco
+SAIDA_MARCA_DAGUA = 'img/logo-marca-dagua.png'
+OPACIDADE_FINAL = 0.24                    # 0.10-0.11 costuma ficar fraco demais; ajuste vendo o resultado ao vivo
+# ---------------------------------
+
+img = Image.open(LOGO_ORIGINAL).convert('RGBA')
+icone = img.crop(CROP)
+icone.save(SAIDA_ICONE)  # selo opaco, sem tratamento nenhum
+
+# 1) Color-key: remove o fundo solido, deixando so' o desenho com alpha real
+bg = icone.getpixel((2, 2))  # amostra a cor de fundo num canto (garantido fundo, nao icone)
+w, h = icone.size
+px = icone.load()
+limiar = 42
+for y in range(h):
+    for x in range(w):
+        r, g, b, a = px[x, y]
+        dist = math.sqrt((r - bg[0]) ** 2 + (g - bg[1]) ** 2 + (b - bg[2]) ** 2)
+        if dist < limiar:
+            px[x, y] = (r, g, b, 0)
+        elif dist < limiar * 2.2:
+            alpha = int(255 * (dist - limiar) / (limiar * 1.2))
+            px[x, y] = (r, g, b, max(0, min(255, alpha)))
+
+# 2) Degrade radial nos proprios pixels - sem isso a borda do icone (redonda
+#    ou nao) ainda aparece como um contorno duro quando usada em tamanho grande
+cx, cy = w / 2, h / 2
+raio_max = min(w, h) / 2
+r, g, b, a = icone.split()
+a = a.load()
+for y in range(h):
+    for x in range(w):
+        t = math.sqrt((x - cx) ** 2 + (y - cy) ** 2) / raio_max
+        fator = 1.0 if t <= 0.70 else (0.0 if t >= 1.0 else 1.0 - (t - 0.70) / 0.30)
+        a[x, y] = int(a[x, y] * fator)
+
+# 3) Opacidade final do efeito marca d'agua
+r2, g2, b2, a2 = icone.split()
+a2 = a2.point(lambda v: int(v * OPACIDADE_FINAL))
+icone_final = Image.merge('RGBA', (r2, g2, b2, a2))
+icone_final.save(SAIDA_MARCA_DAGUA)
+
+print('OK -', SAIDA_ICONE, 'e', SAIDA_MARCA_DAGUA, 'gerados')
+```
+
+**Como conferir se o resultado ficou certo, sem precisar abrir no navegador**
+(o próprio agente consegue rodar isso): compor o PNG gerado sobre a cor de
+fundo real do card/página e salvar como preview, depois checar os 4 cantos
+do arquivo pra confirmar alpha=0 (sem quadrado sólido sobrando):
+
+```python
+from PIL import Image
+wm = Image.open('img/logo-marca-dagua.png')
+w, h = wm.size
+for c in [(2, 2), (w-3, 2), (2, h-3), (w-3, h-3)]:
+    print(c, wm.getpixel(c))  # alpha (4o numero) tem que ser 0 nos 4
+
+fundo = Image.new('RGBA', wm.size, (7, 24, 21, 255))  # cor real do fundo do projeto
+fundo.alpha_composite(wm)
+fundo.convert('RGB').save('preview_marca_dagua.png')  # abrir esse arquivo pra ver como fica
+```
+
+**Erros mais comuns que fazem a marca d'água "não dar certo":**
+- **Pular o color-key (passo 1)** e usar o recorte original direto com
+  `opacity` no CSS ou como `background-image` — mostra o **quadrado sólido**
+  do fundo da logo, não o ícone.
+- **Usar `opacity` no CSS no lugar de multiplicar o alpha no arquivo** —
+  além de mais frágil (a opacidade CSS se aplica no elemento inteiro,
+  afetando qualquer texto/filho dentro dele também), ainda mostra o
+  quadrado se o passo 1 não foi feito.
+- **Pular o degradê radial (passo 2)** — a marca d'água fica com uma borda
+  circular/quadrada dura e visível, em vez de se dissolver no fundo.
+- **Marca d'água atrás de um card com fundo opaco** — soma zero visualmente.
+  Ou o card fica levemente translúcido (`rgba` no lugar de cor sólida), ou
+  a marca d'água é posicionada num vão sem card por cima.
+- **Adicionar alguma regra "de segurança" tipo `position:relative; z-index:1`
+  nos filhos do elemento com a marca d'água de fundo** — desnecessário (fundo
+  sempre pinta atrás do conteúdo) e pode travar outros recursos da página
+  (ver Armadilha 5 acima). Se o agente inventar essa regra "pra garantir que
+  o conteúdo apareça por cima", é pra tirar.
+
 Arquivos gerados: `frontend/img/logo-icone.png` (recorte opaco, pro selo
 pequeno no cabeçalho) e `frontend/img/logo-marca-dagua.png` (transparente +
 degradê + opacidade baixa, pro fundo).
