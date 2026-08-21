@@ -232,7 +232,14 @@
             background-attachment: fixed;
         }
 
-        .tab-content.active > * { position: relative; z-index: 1; }
+        /* Removido: "> * { position:relative; z-index:1 }" - o fundo de um
+           elemento (a marca d'agua) ja fica atras do proprio conteudo por
+           padrao, sem precisar de z-index nenhum. Essa regra so' criava um
+           contexto de empilhamento em .dashboard-layout que prendia o card
+           expandido (position:fixed, z-index:200) DENTRO dele - o fundo
+           escuro (.card-backdrop, fora desse contexto) acabava renderizando
+           por cima do card "expandido" inteiro, bloqueando clique/hover e
+           deixando tudo escurecido. */
 
         .dashboard-layout {
             display: grid;
@@ -261,7 +268,18 @@
             margin-bottom: var(--space-sm);
         }
 
+        .credito-dev {
+            text-align: center;
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.4;
+            padding-top: var(--space-md);
+            border-top: 1px solid var(--border-subtle);
+        }
+
         .card {
+            position: relative;
             background: var(--glass-bg-primary);
             border: 1px solid var(--glass-border);
             border-radius: 16px;
@@ -276,6 +294,60 @@
             box-shadow: var(--shadow-glass-hover), var(--shadow-accent-glow);
             transform: translateY(-3px);
             border-color: var(--primary);
+        }
+
+        /* Expandir card (pedido do gestor, pra apresentacao de resultados) */
+        .card-expand-btn {
+            position: absolute;
+            top: var(--space-md);
+            right: var(--space-md);
+            z-index: 5;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-card-hover);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            line-height: 1;
+            box-shadow: none;
+        }
+
+        .card-expand-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .card-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 150;
+        }
+
+        .card-backdrop.ativo { display: block; }
+
+        .card.expandido {
+            position: fixed;
+            top: 4vh;
+            left: 4vw;
+            right: 4vw;
+            bottom: 4vh;
+            width: auto;
+            margin: 0;
+            z-index: 200;
+            overflow-y: auto;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8);
+            transform: none;
+            background: #0C231F !important;
+            opacity: 1 !important;
         }
 
         .card h2 {
@@ -428,6 +500,13 @@
             background: rgba(12, 35, 31, 0.88);
         }
 
+        /* Expandido, o card vira uma janela cheia por cima de tudo - a
+           translucidez acima (pensada pra um card pequeno na grade) faria
+           a tela inteira atras aparecer "lavada" por tras do grafico. */
+        .charts-grid .card.expandido {
+            background: var(--bg-card);
+        }
+
         .pizza-stack {
             display: flex;
             flex-direction: column;
@@ -572,6 +651,7 @@
                         <label for="filtro-conferente">Conferente</label>
                         <select id="filtro-conferente" onchange="onFiltroChange('conferente')"><option value="">Mostrar Todos</option></select>
                     </div>
+                    <div class="credito-dev">Desenvolvido por<br>Yulyan Guarino Garbero</div>
                 </aside>
 
                 <div class="dashboard-main">
@@ -773,11 +853,15 @@
         </div>
     </div>
 
+    <div id="card-backdrop" class="card-backdrop" onclick="fecharCardExpandido()"></div>
+
     <script>
         // Detecta ambiente automaticamente: rodando local (localhost:5500) usa o backend
-        // local (localhost:8000); em qualquer outro endereço usa o backend de produção.
+        // local (localhost:8001 - porta escolhida pra não bater com outros projetos
+        // locais que costumam usar 8000); em qualquer outro endereço usa o backend
+        // de produção.
         const API_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-            ? 'http://localhost:8000'
+            ? 'http://localhost:8001'
             : 'https://sistema-de-produtividade-backend.onrender.com';
         let chartSeparadores, chartConferentes, chartResultadoFinal;
         const CORES_COLABORADOR = ['#FF6B00', '#2ECC71', '#5A8BFA', '#F1C40F', '#E74C3C', '#9B59B6', '#1ABC9C', '#E67E22', '#FF3EA5', '#00D9FF'];
@@ -1282,8 +1366,64 @@
             fetch(`${API_URL}/`, { method: 'GET' }).catch(() => {});
         }, 5 * 60 * 1000);  // 5 minutos
 
+        // Expandir card: clique no cantinho de qualquer card pra ver ele
+        // maior (pedido do gestor, ajuda a apresentar os resultados numa
+        // reunião/projetor).
+        function inicializarExpandirCards() {
+            document.querySelectorAll('.card').forEach(card => {
+                if (card.querySelector('.card-expand-btn')) return;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'card-expand-btn';
+                btn.title = 'Expandir card';
+                btn.innerHTML = '⤢';
+                btn.onclick = (e) => { e.stopPropagation(); alternarExpandirCard(card, btn); };
+                card.appendChild(btn);
+            });
+        }
+
+        function redimensionarGraficos() {
+            // Só chamar .resize() no grafico ja existente nao bastou: o
+            // Chart.js guarda internamente o mapeamento posicao-do-mouse ->
+            // ponto do dado a partir do momento em que foi criado, e isso
+            // ficava incorreto (hover sem resposta) depois de expandir/
+            // encolher o card. Recriar os graficos do zero, do tamanho final,
+            // resolve de vez - por isso recarrega o dashboard inteiro (mesma
+            // rotina usada ao trocar filtro, ja' testada e funcionando).
+            setTimeout(() => {
+                if (document.getElementById('dashboard')?.classList.contains('active')) {
+                    loadDashboard();
+                }
+            }, 320);
+        }
+
+        function alternarExpandirCard(card, btn) {
+            const jaExpandido = card.classList.contains('expandido');
+            fecharCardExpandido();
+            if (!jaExpandido) {
+                card.classList.add('expandido');
+                btn.innerHTML = '✕';
+                btn.title = 'Fechar';
+                document.getElementById('card-backdrop').classList.add('ativo');
+            }
+            redimensionarGraficos();
+        }
+
+        function fecharCardExpandido() {
+            document.querySelectorAll('.card.expandido').forEach(c => {
+                c.classList.remove('expandido');
+                const btn = c.querySelector('.card-expand-btn');
+                if (btn) { btn.innerHTML = '⤢'; btn.title = 'Expandir card'; }
+            });
+            document.getElementById('card-backdrop').classList.remove('ativo');
+            redimensionarGraficos();
+        }
+
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharCardExpandido(); });
+
         document.getElementById('op-data').valueAsDate = new Date();
         initCharts();
+        inicializarExpandirCards();
         loadColaboradores();
         refreshFilterOptions().then(() => loadDashboard());
     </script>
