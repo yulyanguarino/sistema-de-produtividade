@@ -130,8 +130,13 @@ arquivo):
   background-size: min(46vh, 440px) min(46vh, 440px);
   position: relative;
 }
-.tab-content.active > * { position: relative; z-index: 1; }
 ```
+
+Só isso — **sem** a linha `> * { position: relative; z-index: 1 }` que uma
+versão anterior deste doc trazia aqui. Ela parecia fazer parte da receita da
+marca d'água, mas é desnecessária (o fundo de um elemento já pinta atrás do
+próprio conteúdo, sempre) e é exatamente a regra descrita na Armadilha 5
+acima — não copie ela pro projeto novo.
 
 `background-attachment: fixed` ancora a marca d'água na janela (não no
 conteúdo) — fica sempre no mesmo lugar visível, não importa quanto a página
@@ -182,7 +187,8 @@ normal de ícone de app, não precisa de transparência.
 2. Gere o par de assets da logo (ícone opaco + marca d'água transparente)
    uma vez, salve como arquivos reais do projeto.
 3. Aplique a moldura arredondada no container raiz do app, prestando atenção
-   nas 4 armadilhas listadas acima.
+   nas 5 armadilhas listadas acima — a #5 (z-index) é a mais fácil de
+   reintroduzir sem perceber, porque parece uma regra "de segurança" inofensiva.
 4. Confira que toda tabela da página está dentro do mesmo wrapper com borda.
 5. Se a marca d'água for centralizada atrás de cards opacos, deixe esses
    cards específicos levemente translúcidos, ou reposicione a marca d'água
