@@ -23,6 +23,10 @@ class NotFoundError(Exception):
     pass
 
 
+class DuplicateError(Exception):
+    pass
+
+
 # ---- Colaboradores ----
 def criar_colaborador(db: Session, dados: ColaboradorCreate) -> Colaborador:
     colaborador = Colaborador(**dados.model_dump())
@@ -90,6 +94,10 @@ def deletar_colaborador(db: Session, colaborador_id: int) -> bool:
 
 # ---- Operações ----
 def criar_operacao(db: Session, dados: OperacaoCreate) -> Operacao:
+    pedido = (dados.pedido or "").strip()
+    if pedido and db.query(Operacao).filter(Operacao.pedido == pedido).first():
+        raise DuplicateError(f"O pedido {pedido} já está registrado")
+
     separador = obter_colaborador(db, dados.separador_id)
     if not separador:
         raise NotFoundError(f"Separador com ID {dados.separador_id} não encontrado")

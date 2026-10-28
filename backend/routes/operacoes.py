@@ -15,9 +15,11 @@ def criar_operacao(dados: OperacaoCreate, db: Session = Depends(get_db)):
         return services.criar_operacao(db, dados)
     except services.NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    except services.DuplicateError as e:
+        raise HTTPException(status_code=409, detail=str(e))
 
 
-@router.get("", response_model=list[OperacaoReadDetalhado])
+@router.get("",response_model=list[OperacaoReadDetalhado])
 def listar_operacoes(
     dia: Optional[date] = Query(None),
     mes: Optional[str] = Query(None),

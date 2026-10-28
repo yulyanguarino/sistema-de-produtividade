@@ -857,11 +857,11 @@
 
     <script>
         // Detecta ambiente automaticamente: rodando local (localhost:5500) usa o backend
-        // local (localhost:8001 - porta escolhida pra não bater com outros projetos
+        // local (localhost:8003 - porta escolhida pra não bater com outros projetos
         // locais que costumam usar 8000); em qualquer outro endereço usa o backend
         // de produção.
         const API_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-            ? 'http://localhost:8001'
+            ? 'http://localhost:8003'
             : 'https://sistema-de-produtividade-backend.onrender.com';
         let chartSeparadores, chartConferentes, chartResultadoFinal;
         const CORES_COLABORADOR = ['#FF6B00', '#2ECC71', '#5A8BFA', '#F1C40F', '#E74C3C', '#9B59B6', '#1ABC9C', '#E67E22', '#FF3EA5', '#00D9FF'];
@@ -1220,6 +1220,9 @@
 
         async function salvarOperacao(e) {
             e.preventDefault();
+            const submitBtn = document.getElementById('op-form-submit');
+            if (submitBtn.disabled) return;
+            submitBtn.disabled = true;
             const editId = document.getElementById('op-edit-id').value;
             const data = document.getElementById('op-data').value;
             const pedido = document.getElementById('op-pedido').value;
@@ -1241,6 +1244,7 @@
                     showMessage('msg-op', `✗ ${err.detail}`, 'error');
                 }
             } catch (err) { showMessage('msg-op', '✗ Erro na conexão', 'error'); }
+            finally { submitBtn.disabled = false; }
         }
 
         function editarOperacao(op) {
